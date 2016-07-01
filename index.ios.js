@@ -30,8 +30,8 @@ const images = [
   {
     id: 3,
     url: 'https://lh3.googleusercontent.com/G6TdMI2ub9HExEE1Y6meMCRC8bT_3em7VtHIU-_G42vRUaNlPBLO842Ur90mZzFRs8c=h900',
-    width: 6016,
-    height: 4000,
+    width: 571,
+    height: 900,
   },
   {
     id: 4,

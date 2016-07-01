@@ -13,7 +13,6 @@ export default function panHandler(
     cardinals: CARDINALS,
     handlers: {[handler: string]: Array<Function>},
   ) {
-
   function onPanResponderMove(event, gestureState) {
     // console.log('onPanResponderMove', {event, gestureState});
     const dx = gestureState.dx;
@@ -27,7 +26,7 @@ export default function panHandler(
   }
 
   function release(event, gestureState) {
-    console.log('release', event, gestureState);
+    // console.log('release', event, gestureState);
     const {width} = Dimensions.get('window');
     const relativeDistance = gestureState.dx / width;
     const vx = gestureState.vx;
@@ -39,16 +38,20 @@ export default function panHandler(
       change = -1;
     }
     cardinals.cursor += change;
-    if (
-      change && cardinals.cursor >= 0 &&
-      cardinals.cursor < cardinals.rightBoundary
-    ) {
-      console.log({cardinals});
-      console.log('..........................................');
-      if (typeof handlers.onChange === 'function') {
-        handlers.onChange(cardinals);
-      }
+    if (cardinals.cursor > (cardinals.rightBoundary - 1)) {
+      cardinals.cursor = (cardinals.rightBoundary - 1);
+    } else if (cardinals.cursor === -1) {
+      cardinals.cursor = 0;
     }
+    // if (
+    //   change && cardinals.cursor >= 0 &&
+    //   cardinals.cursor < cardinals.rightBoundary
+    // ) {
+    //   if (typeof handlers.onChange === 'function') {
+    //     handlers.onChange(cardinals);
+    //   }
+    // }
+    handlers.onChange(cardinals);
     // move();
   }
 

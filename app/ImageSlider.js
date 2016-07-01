@@ -59,6 +59,7 @@ export default class ImageSlider extends Component {
   };
   render() {
     console.log('=== render ===', this);
+    console.log(this.state.rightOffset - this.state.leftOffset);
     const {height, width} = Dimensions.get('window');
     return (
       <Animated.View
@@ -68,7 +69,7 @@ export default class ImageSlider extends Component {
           {
             transform: [{translateX: this.state.left}],
             height,
-            width: this.props.images.length * width,
+            width: width * (this.state.rightOffset - this.state.leftOffset)
           },
         ]}
         >
