@@ -64,7 +64,7 @@ export default class _Image extends Component {
           style={{
             position: 'absolute',
             marginTop: -2,
-            width: 100,
+            width: this.props.image.width,
           }}
           />}
       </View>
