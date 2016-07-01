@@ -10,6 +10,7 @@
     "babel-plugin-transform-flow-strip-types": "^6.8.0",
     "eslint": "^2.13.1",
     "eslint-plugin-react-native": "^1.1.0",
+    "lodash": "^4.13.1",
     "react": "15.1.0",
     "react-native": "0.28.0"
   },
