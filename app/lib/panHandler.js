@@ -24,18 +24,28 @@ export default function panHandler(
         changedTouches[0].locationX - changedTouches[1].locationX;
       let distanceY =
         changedTouches[0].locationY - changedTouches[1].locationY;
-      console.log({distanceX, distanceY, _previousDistanceX, _previousDistanceY});
       if (
         distanceX > _previousDistanceX ||
         distanceY > _previousDistanceY ||
         (!_previousDistanceX && !_previousDistanceY)
       ) {
-        let prevX = distanceX - _previousDistanceX;
-        let prevY = distanceY - _previousDistanceY;
         _previousDistanceX = distanceX;
         _previousDistanceY = distanceY;
-        cardinals._zoom += 0.01;
-        handlers.onZoom(cardinals);
+        cardinals._zoom += 0.025;
+        console.log('^', {zoom: cardinals._zoom});
+        cardinals.zoom.setValue(cardinals._zoom);
+      } else if (
+        distanceX < _previousDistanceX ||
+        distanceY < _previousDistanceY ||
+        (!_previousDistanceX && !_previousDistanceY)
+      ) {
+        _previousDistanceX = distanceX;
+        _previousDistanceY = distanceY;
+        cardinals._zoom -= 0.025;
+        console.log('\\/', {zoom: cardinals._zoom});
+        if (cardinals._zoom >= 1) {
+          cardinals.zoom.setValue(cardinals._zoom);
+        }
       }
     } else {
       const dx = gestureState.dx;

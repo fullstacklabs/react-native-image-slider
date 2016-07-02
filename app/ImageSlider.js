@@ -67,15 +67,16 @@ export default class ImageSlider extends Component {
   };
   onZoom: Function = (cardinals: CARDINALS) => {
     console.log('---------------------------');
-    const {zoom, _zoom} = cardinals;
-    Animated
-      .spring(zoom, {
-        toValue: _zoom,
-        velocity: 10,
-        duration: 10,
-        easing: Easing.linear,
-      })
-      .start();
+    // const {zoom, _zoom} = cardinals;
+    // Animated
+    //   .spring(zoom, {
+    //     toValue: _zoom,
+    //     velocity: 10,
+    //     duration: 10,
+    //     easing: Easing.linear,
+    //   })
+    //   .start();
+    this.setState({_zoom: cardinals._zoom});
   };
   render() {
     const {height, width} = Dimensions.get('window');
@@ -86,8 +87,11 @@ export default class ImageSlider extends Component {
           {onChange: this.onChange, onZoom: this.onZoom}
         )}
         style={[
-          styles.container,
           {
+            backgroundColor: 'black',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
             flex: 1,
             transform: [{translateX: this.state.left}],
             height,
@@ -111,7 +115,7 @@ export default class ImageSlider extends Component {
             ...image,
             ...applyZoom(scale(image.width, image.height)),
           }}
-          zoom={this.state.zoom}
+          zoom={this.state._zoom}
           onZoom={() => {
             console.log('hello');
           }}

@@ -53,20 +53,18 @@ export default class _Image extends Component {
   render() {
     return (
       <View
-        style={{overflow: 'hidden', width: Dimensions.get('window').width, flex: 1}}
+        style={{
+          width: Dimensions.get('window').width,
+          flex: 1,
+        }}
         >
-        <Animated.Image
+        <Image
           source={{uri: this.props.image.url}}
           style={{
-            width: this.props.image.width,
-            height: this.props.image.height,
+            alignSelf: 'center',
+            width: this.props.image.width * this.props.zoom,
+            height: this.props.image.height * this.props.zoom,
             ...this.props.style,
-            opacity: this.props.zoom,
-            transform: [
-              {
-                scale: this.props.zoom,
-              }
-            ],
           }}
           onLoadStart={() => {
             this.isStarting();
