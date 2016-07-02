@@ -2,7 +2,6 @@
 import React, {Component} from 'react';
 import {
   View,
-  PanResponder,
   Dimensions,
   Animated,
   StyleSheet,
