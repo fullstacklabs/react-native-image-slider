@@ -124,35 +124,6 @@ export default class ImageSlider extends Component {
           >
           {this.renderImages()}
         </Animated.View>
-        {<Animated.Image
-          {...PanResponder.create({
-            onStartShouldSetPanResponder: () => true,
-            onStartShouldSetPanResponderCapture: () => true,
-            onMoveShouldSetPanResponder: () => true,
-            onMoveShouldSetPanResponderCapture: () => true,
-            onPanResponderRelease: () => true,
-            // onPanResponderTerminate: release,
-            onPanResponderMove: (event, gestureState) => {
-              const {changedTouches} = event.nativeEvent;
-              if (changedTouches.length === 2) {
-                this.state.scale.setValue(1.5);
-              }
-            },
-          }).panHandlers}
-          source={{uri: this.props.images[0].url}}
-          style={{
-            ...scale(this.props.images[0].width, this.props.images[0].height),
-            alignSelf: 'center',
-            borderWidth: 2,
-            borderColor: 'red',
-            position: 'absolute',
-            top: height / 2 - (
-              scale(this.props.images[0].width, this.props.images[0].height)
-                .height / 2
-            ),
-            transform: [{scale: this.state.scale}]
-          }}
-          />}
       </View>
     );
   }

@@ -17,10 +17,16 @@ export default function panHandler(
   ) {
   function onPanResponderMove(event, gestureState) {
     // console.log('onPanResponderMove', {event, gestureState});
-    const {changedTouches} = event.nativeEvent;
-    if (changedTouches.length === 2) {
+    for (const key in event) {
+      console.log({key, event: event[key]});
+    }
+    const {changedTouches, target} = event.nativeEvent;
+    console.log(event.nativeEvent);
+    if (target === 5 && changedTouches.length === 1) {
       console.log('pinch');
-      handlers.onZoom();
+      const dx = gestureState.dx;
+      const {width} = Dimensions.get('window');
+      cardinals.left.setValue(-(cardinals.cursor * width) + Math.round(dx));
       // let distanceX =
       //   changedTouches[0].locationX - changedTouches[1].locationX;
       // let distanceY =
@@ -50,9 +56,8 @@ export default function panHandler(
       // }
       // cardinals.zoom.setValue(cardinals._zoom);
     } else {
-      const dx = gestureState.dx;
-      const {width} = Dimensions.get('window');
-      cardinals.left.setValue(-(cardinals.cursor * width) + Math.round(dx));
+      event.preventDefault();
+      // console.log('isDefaultPrevented', event.isDefaultPrevented());
     }
     return true;
   }
@@ -103,10 +108,21 @@ export default function panHandler(
   // }
 
   return PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onStartShouldSetPanResponderCapture: () => true,
-    onMoveShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponderCapture: () => true,
+    onStartShouldSetPanResponder: (event) => {
+      const {changedTouches} = event.nativeEvent;
+      console.log('start', changedTouches.length);
+      for (const key in event) {
+        console.log({key, type: typeof event[key], event: event[key]});
+      }
+      event.persist();
+      return changedTouches.length === 1;
+    },
+    onStartShouldSetPanResponderCapture: () => false,
+    onMoveShouldSetPanResponder: (event) => {
+      const {changedTouches} = event.nativeEvent;
+      return changedTouches.length === 1;
+    },
+    onMoveShouldSetPanResponderCapture: () => false,
     onPanResponderRelease: release,
     // onPanResponderTerminate: release,
     onPanResponderMove,

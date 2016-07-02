@@ -2,7 +2,7 @@
 import React, {Component} from 'react';
 import {
   Image,
-  ScrollView,
+  View,
   ProgressViewIOS,
   Animated,
   Dimensions,
@@ -25,6 +25,7 @@ type STATE = {
   started: boolean,
   ended: boolean,
   done: boolean,
+  scale: Animated.Value,
 };
 
 export default class _Image extends Component {
@@ -34,6 +35,7 @@ export default class _Image extends Component {
     started: false,
     ended: false,
     done: false,
+    scale: new Animated.Value(1),
   };
   componentDidUpdate() {
   }
@@ -53,24 +55,62 @@ export default class _Image extends Component {
   render() {
     console.log(this.props.zoom);
     return (
-      <ScrollView
+      <View
         style={{
           overflow: 'hidden',
           width: Dimensions.get('window').width,
           flex: 1,
         }}
-        minimumZoomScale={1}
-        maximumZoomScale={4}
-        zoomScale={1}
-        centerContent={true}
         >
-        <Image
-          pointerEvents="none"
+        <Animated.Image
+          {...PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onStartShouldSetPanResponderCapture: () => false,
+            onMoveShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponderCapture: () => false,
+            onPanResponderRelease: () => {
+              console.log('release');
+            },
+            // onPanResponderTerminate: release,
+            onPanResponderMove: (event) => {
+              const {nativeEvent} = event;
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('===============================');
+              console.log('moving', nativeEvent);
+              if (nativeEvent.changedTouches.length === 2) {
+                Animated.timing(this.state.scale, {
+                  toValue: 1.75,
+                  duration: 0,
+                }).start();
+              } else {
+                // this.state.scale.setValue(1.5);
+              }
+              // this.state.scale.setValue(1.25);
+              // Animated
+              //   .timing(this.state.scale, {
+              //     toValue: 1.5,
+              //     duration: -15,
+              //   })
+              //   .start();
+            },
+          }).panHandlers}
           source={{uri: this.props.image.url}}
           style={{
             alignSelf: 'center',
             width: this.props.image.width * this.props.zoom,
             height: this.props.image.height * this.props.zoom,
+            transform: [{scale: this.state.scale}],
             ...this.props.style,
           }}
           onLoadStart={() => {
@@ -92,7 +132,7 @@ export default class _Image extends Component {
             alignSelf: 'center',
           }}
           />}
-      </ScrollView>
+      </View>
     );
   }
 }
