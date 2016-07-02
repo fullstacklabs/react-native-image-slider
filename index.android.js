@@ -67,7 +67,6 @@ class App extends Component {
           onPanResponderRelease: () => {
             console.log('release view');
           },
-          // onPanResponderTerminate: release,
           onPanResponderMove: (event) => {
             const {nativeEvent} = event;
             console.log('move view', nativeEvent);
