@@ -1,6 +1,6 @@
 // @flow
 import React, {Component} from 'react';
-import {Image, View, ProgressViewIOS, Animated, Easing} from 'react-native';
+import {Image, View, ProgressViewIOS, Animated, Easing, Dimensions} from 'react-native';
 // import scale from './scale';
 import type {IMAGE} from './ImageSlider';
 
@@ -45,7 +45,7 @@ export default class _Image extends Component {
   }
   render() {
     return (
-      <View>
+      <View style={{overflow: 'hidden', width: Dimensions.get('window').width}}>
         <Animated.Image
           source={{uri: this.props.image.url}}
           style={{
