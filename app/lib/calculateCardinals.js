@@ -41,5 +41,7 @@ export default function calculateCardinals(props: PROPS): CARDINALS {
     leftOffset: start,
     rightOffset: end,
     left: new Animated.Value(cursor * -width),
+    _zoom: 1,
+    zoom: new Animated.Value(1),
   };
 }

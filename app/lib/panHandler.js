@@ -1,4 +1,4 @@
-import {PanResponder, Dimensions} from 'react-native';
+import {PanResponder, Dimensions, Animated} from 'react-native';
 import type {CARDINALS} from './ImageSlider';
 
 export
@@ -9,24 +9,40 @@ type PROPS = {
   onImageChange?: Function,
 };
 
+let _previousDistanceX, _previousDistanceY;
+
 export default function panHandler(
     cardinals: CARDINALS,
     handlers: {[handler: string]: Array<Function>},
   ) {
   function onPanResponderMove(event, gestureState) {
     // console.log('onPanResponderMove', {event, gestureState});
-    const dx = gestureState.dx;
-    const {width} = Dimensions.get('window');
-    cardinals.left.setValue(-(cardinals.cursor * width) + Math.round(dx));
-  }
-
-  function onStartShouldSetPanResponder(event, gestureState) {
-    // console.log('onStartShouldSetPanResponder', {event, gestureState});
-    return true;
+    const {changedTouches} = event.nativeEvent;
+    if (changedTouches.length === 2) {
+      console.log('pinch');
+      let distanceX =
+        changedTouches[0].locationX - changedTouches[1].locationX;
+      let distanceY =
+        changedTouches[0].locationY - changedTouches[1].locationY;
+      if (
+        distanceX > this._previousDistanceX ||
+        distanceY > this._previousDistanceY ||
+        (!_previousDistanceX && !_previousDistanceY)
+      ) {
+        _previousDistanceX = distanceX;
+        _previousDistanceY = distanceY;
+        cardinals._zoom = 1.25;
+        handlers.onZoom(cardinals);
+      }
+    } else {
+      const dx = gestureState.dx;
+      const {width} = Dimensions.get('window');
+      cardinals.left.setValue(-(cardinals.cursor * width) + Math.round(dx));
+    }
   }
 
   function release(event, gestureState) {
-    // console.log('release', event, gestureState);
+    console.log('release', event, gestureState);
     const {width} = Dimensions.get('window');
     const relativeDistance = gestureState.dx / width;
     const vx = gestureState.vx;
@@ -43,16 +59,7 @@ export default function panHandler(
     } else if (cardinals.cursor === -1) {
       cardinals.cursor = 0;
     }
-    // if (
-    //   change && cardinals.cursor >= 0 &&
-    //   cardinals.cursor < cardinals.rightBoundary
-    // ) {
-    //   if (typeof handlers.onChange === 'function') {
-    //     handlers.onChange(cardinals);
-    //   }
-    // }
     handlers.onChange(cardinals);
-    // move();
   }
 
   // function move() {
@@ -80,7 +87,7 @@ export default function panHandler(
   // }
 
   return PanResponder.create({
-    onStartShouldSetPanResponder,
+    onStartShouldSetPanResponder: () => true,
     onStartShouldSetPanResponderCapture: () => true,
     onMoveShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponderCapture: () => true,

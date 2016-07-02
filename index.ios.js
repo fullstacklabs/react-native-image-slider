@@ -49,7 +49,6 @@ const images = [
 
 class App extends Component {
   render() {
-    console.log('=== render ===', this);
     return (
       <View style={{
         marginTop: 32,

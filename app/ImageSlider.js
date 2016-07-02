@@ -2,7 +2,7 @@
 import React, {Component} from 'react';
 import {
   View,
-  Text,
+  Easing,
   Dimensions,
   Animated,
   StyleSheet,
@@ -11,6 +11,7 @@ import Image from './Image';
 import scale from './lib/scale';
 import panHandler from './lib/panHandler';
 import calculateCardinals from './lib/calculateCardinals';
+import applyZoom from './lib/zoom';
 
 export
 type IMAGE = {
@@ -33,6 +34,8 @@ type CARDINALS = {
   rightOffset: number,
   cursor: number,
   left: Animated.Value,
+  _zoom: number,
+  zoom: Animated.Value,
   size: number,
   leftBoundary: number,
   rightBoundary: number,
@@ -46,8 +49,7 @@ export default class ImageSlider extends Component {
   props: PROPS;
   state: STATE = {...calculateCardinals(this.props)};
   onChange: Function = (cardinals: CARDINALS) => {
-    console.log({cardinals});
-    const {left, cursor} = cardinals;
+    const {left, cursor, zoom} = cardinals;
     const _width = Dimensions.get('window').width;
     // this.setState({left}, () => {
     Animated.spring(left, {
@@ -55,15 +57,34 @@ export default class ImageSlider extends Component {
       friction: 10,
       tension: 50,
     }).start();
+    // Animated.spring(zoom, {
+    //   toValue: cursor * -_width,
+    //   friction: 10,
+    //   tension: 50,
+    // }).start();
     // });
+    this.setState({zoom});
+  };
+  onZoom: Function = (cardinals: CARDINALS) => {
+    console.log('---------------------------');
+    const {zoom, _zoom} = cardinals;
+    Animated
+      .spring(zoom, {
+        toValue: _zoom,
+        velocity: 10,
+        duration: 10,
+        easing: Easing.linear,
+      })
+      .start();
   };
   render() {
-    console.log('=== render ===', this);
-    console.log(this.state.rightOffset - this.state.leftOffset);
     const {height, width} = Dimensions.get('window');
     return (
       <Animated.View
-        {...panHandler(this.state, {onChange: this.onChange})}
+        {...panHandler(
+          this.state,
+          {onChange: this.onChange, onZoom: this.onZoom}
+        )}
         style={[
           styles.container,
           {
@@ -87,7 +108,11 @@ export default class ImageSlider extends Component {
           key={index}
           image={{
             ...image,
-            ...scale(image.width, image.height),
+            ...applyZoom(scale(image.width, image.height)),
+          }}
+          zoom={this.state.zoom}
+          onZoom={() => {
+            console.log('hello');
           }}
           />;
       }

@@ -1,12 +1,15 @@
 // @flow
 import React, {Component} from 'react';
-import {Image, View, ProgressViewIOS} from 'react-native';
+import {Image, View, ProgressViewIOS, Animated, Easing} from 'react-native';
 // import scale from './scale';
 import type {IMAGE} from './ImageSlider';
 
 export
 type PROPS = {
   image: IMAGE,
+  style?: Object,
+  onZoom?: Function,
+  zoom: Animated.Value,
 };
 
 export
@@ -43,11 +46,18 @@ export default class _Image extends Component {
   render() {
     return (
       <View>
-        <Image
+        <Animated.Image
           source={{uri: this.props.image.url}}
           style={{
             width: this.props.image.width,
             height: this.props.image.height,
+            ...this.props.style,
+            opacity: this.props.zoom,
+            transform: [
+              {
+                scale: this.props.zoom,
+              }
+            ]
           }}
           onLoadStart={() => {
             this.isStarting();
