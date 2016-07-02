@@ -88,6 +88,7 @@ export default class ImageSlider extends Component {
         style={[
           styles.container,
           {
+            flex: 1,
             transform: [{translateX: this.state.left}],
             height,
             width: width * (this.state.rightOffset - this.state.leftOffset)

@@ -6,6 +6,7 @@ import {
   ProgressViewIOS,
   Animated,
   Dimensions,
+  PanResponder,
 } from 'react-native';
 // import scale from './scale';
 import type {IMAGE} from './ImageSlider';
@@ -51,7 +52,9 @@ export default class _Image extends Component {
   }
   render() {
     return (
-      <View style={{overflow: 'hidden', width: Dimensions.get('window').width}}>
+      <View
+        style={{overflow: 'hidden', width: Dimensions.get('window').width, flex: 1}}
+        >
         <Animated.Image
           source={{uri: this.props.image.url}}
           style={{
@@ -63,7 +66,7 @@ export default class _Image extends Component {
               {
                 scale: this.props.zoom,
               }
-            ]
+            ],
           }}
           onLoadStart={() => {
             this.isStarting();

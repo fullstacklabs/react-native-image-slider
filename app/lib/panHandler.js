@@ -24,14 +24,17 @@ export default function panHandler(
         changedTouches[0].locationX - changedTouches[1].locationX;
       let distanceY =
         changedTouches[0].locationY - changedTouches[1].locationY;
+      console.log({distanceX, distanceY, _previousDistanceX, _previousDistanceY});
       if (
-        distanceX > this._previousDistanceX ||
-        distanceY > this._previousDistanceY ||
+        distanceX > _previousDistanceX ||
+        distanceY > _previousDistanceY ||
         (!_previousDistanceX && !_previousDistanceY)
       ) {
+        let prevX = distanceX - _previousDistanceX;
+        let prevY = distanceY - _previousDistanceY;
         _previousDistanceX = distanceX;
         _previousDistanceY = distanceY;
-        cardinals._zoom = 1.25;
+        cardinals._zoom += 0.01;
         handlers.onZoom(cardinals);
       }
     } else {
@@ -39,6 +42,7 @@ export default function panHandler(
       const {width} = Dimensions.get('window');
       cardinals.left.setValue(-(cardinals.cursor * width) + Math.round(dx));
     }
+    return true;
   }
 
   function release(event, gestureState) {
