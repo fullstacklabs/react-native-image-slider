@@ -2,10 +2,11 @@
 import React, {Component} from 'react';
 import {
   View,
-  Easing,
+  PanResponder,
   Dimensions,
   Animated,
   StyleSheet,
+  Text,
 } from 'react-native';
 import Image from './Image';
 import scale from './lib/scale';
@@ -47,7 +48,24 @@ type STATE = CARDINALS;
 
 export default class ImageSlider extends Component {
   props: PROPS;
-  state: STATE = {...calculateCardinals(this.props)};
+  state: STATE = {
+    ...calculateCardinals(this.props),
+    zooming: false,
+    scale: new Animated.Value(1),
+  };
+  componentDidUpdate() {
+    console.log('...');
+    console.log('...');
+    console.log('...');
+    console.log('...');
+    console.log('...');
+    console.log('...');
+    console.log('...');
+    console.log('...');
+    console.log('...');
+    console.log('...');
+    console.log('...');
+  }
   onChange: Function = (cardinals: CARDINALS) => {
     const {left, cursor, zoom} = cardinals;
     const _width = Dimensions.get('window').width;
@@ -63,7 +81,7 @@ export default class ImageSlider extends Component {
     //   tension: 50,
     // }).start();
     // });
-    this.setState({zoom});
+    // this.setState({zoom});
   };
   onZoom: Function = (cardinals: CARDINALS) => {
     console.log('---------------------------');
@@ -76,31 +94,66 @@ export default class ImageSlider extends Component {
     //     easing: Easing.linear,
     //   })
     //   .start();
-    this.setState({_zoom: cardinals._zoom});
+    this.setState({zooming: true});
   };
   render() {
     const {height, width} = Dimensions.get('window');
     return (
-      <Animated.View
-        {...panHandler(
-          this.state,
-          {onChange: this.onChange, onZoom: this.onZoom}
-        )}
-        style={[
-          {
-            backgroundColor: 'black',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flex: 1,
-            transform: [{translateX: this.state.left}],
-            height,
-            width: width * (this.state.rightOffset - this.state.leftOffset)
-          },
-        ]}
-        >
-        {this.renderImages()}
-      </Animated.View>
+      <View style={{
+        flexDirection: 'column',
+      }}>
+        <Animated.View
+          {...panHandler(
+            this.state,
+            {onChange: this.onChange, onZoom: this.onZoom}
+          )}
+          style={[
+            {
+              backgroundColor: 'black',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: 1,
+              transform: [
+                {translateX: this.state.left},
+              ],
+              height,
+              width: width * (this.state.rightOffset - this.state.leftOffset)
+            },
+          ]}
+          >
+          {this.renderImages()}
+        </Animated.View>
+        {<Animated.Image
+          {...PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onStartShouldSetPanResponderCapture: () => true,
+            onMoveShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponderCapture: () => true,
+            onPanResponderRelease: () => true,
+            // onPanResponderTerminate: release,
+            onPanResponderMove: (event, gestureState) => {
+              const {changedTouches} = event.nativeEvent;
+              if (changedTouches.length === 2) {
+                this.state.scale.setValue(1.5);
+              }
+            },
+          }).panHandlers}
+          source={{uri: this.props.images[0].url}}
+          style={{
+            ...scale(this.props.images[0].width, this.props.images[0].height),
+            alignSelf: 'center',
+            borderWidth: 2,
+            borderColor: 'red',
+            position: 'absolute',
+            top: height / 2 - (
+              scale(this.props.images[0].width, this.props.images[0].height)
+                .height / 2
+            ),
+            transform: [{scale: this.state.scale}]
+          }}
+          />}
+      </View>
     );
   }
   renderImages() {
@@ -113,7 +166,7 @@ export default class ImageSlider extends Component {
           key={index}
           image={{
             ...image,
-            ...applyZoom(scale(image.width, image.height)),
+            ...scale(image.width, image.height),
           }}
           zoom={this.state._zoom}
           onZoom={() => {

@@ -20,33 +20,35 @@ export default function panHandler(
     const {changedTouches} = event.nativeEvent;
     if (changedTouches.length === 2) {
       console.log('pinch');
-      let distanceX =
-        changedTouches[0].locationX - changedTouches[1].locationX;
-      let distanceY =
-        changedTouches[0].locationY - changedTouches[1].locationY;
-      if (
-        distanceX > _previousDistanceX ||
-        distanceY > _previousDistanceY ||
-        (!_previousDistanceX && !_previousDistanceY)
-      ) {
-        _previousDistanceX = distanceX;
-        _previousDistanceY = distanceY;
-        cardinals._zoom += 0.025;
-        console.log('^', {zoom: cardinals._zoom});
-        cardinals.zoom.setValue(cardinals._zoom);
-      } else if (
-        distanceX < _previousDistanceX ||
-        distanceY < _previousDistanceY ||
-        (!_previousDistanceX && !_previousDistanceY)
-      ) {
-        _previousDistanceX = distanceX;
-        _previousDistanceY = distanceY;
-        cardinals._zoom -= 0.025;
-        console.log('\\/', {zoom: cardinals._zoom});
-        if (cardinals._zoom >= 1) {
-          cardinals.zoom.setValue(cardinals._zoom);
-        }
-      }
+      handlers.onZoom();
+      // let distanceX =
+      //   changedTouches[0].locationX - changedTouches[1].locationX;
+      // let distanceY =
+      //   changedTouches[0].locationY - changedTouches[1].locationY;
+      // if (
+      //   distanceX > _previousDistanceX ||
+      //   distanceY > _previousDistanceY ||
+      //   (!_previousDistanceX && !_previousDistanceY)
+      // ) {
+      //   _previousDistanceX = distanceX;
+      //   _previousDistanceY = distanceY;
+      //   cardinals._zoom += 0.025;
+      //   console.log('^', {zoom: cardinals._zoom});
+      //   handlers.onZoom(cardinals);
+      // } else if (
+      //   distanceX < _previousDistanceX ||
+      //   distanceY < _previousDistanceY ||
+      //   (!_previousDistanceX && !_previousDistanceY)
+      // ) {
+      //   _previousDistanceX = distanceX;
+      //   _previousDistanceY = distanceY;
+      //   cardinals._zoom -= 0.025;
+      //   console.log('\\/', {zoom: cardinals._zoom});
+      //   if (cardinals._zoom >= 1) {
+      //     handlers.onZoom(cardinals);
+      //   }
+      // }
+      // cardinals.zoom.setValue(cardinals._zoom);
     } else {
       const dx = gestureState.dx;
       const {width} = Dimensions.get('window');
@@ -56,24 +58,24 @@ export default function panHandler(
   }
 
   function release(event, gestureState) {
-    console.log('release', event, gestureState);
-    const {width} = Dimensions.get('window');
-    const relativeDistance = gestureState.dx / width;
-    const vx = gestureState.vx;
-    let change = 0;
-
-    if (relativeDistance < -0.5 || relativeDistance < 0 && vx <= 0.5) {
-      change = 1;
-    } else if (relativeDistance > 0.5 || relativeDistance > 0 && vx >= 0.5) {
-      change = -1;
-    }
-    cardinals.cursor += change;
-    if (cardinals.cursor > (cardinals.rightBoundary - 1)) {
-      cardinals.cursor = (cardinals.rightBoundary - 1);
-    } else if (cardinals.cursor === -1) {
-      cardinals.cursor = 0;
-    }
-    handlers.onChange(cardinals);
+    // console.log('release', event, gestureState);
+    // const {width} = Dimensions.get('window');
+    // const relativeDistance = gestureState.dx / width;
+    // const vx = gestureState.vx;
+    // let change = 0;
+    //
+    // if (relativeDistance < -0.5 || relativeDistance < 0 && vx <= 0.5) {
+    //   change = 1;
+    // } else if (relativeDistance > 0.5 || relativeDistance > 0 && vx >= 0.5) {
+    //   change = -1;
+    // }
+    // cardinals.cursor += change;
+    // if (cardinals.cursor > (cardinals.rightBoundary - 1)) {
+    //   cardinals.cursor = (cardinals.rightBoundary - 1);
+    // } else if (cardinals.cursor === -1) {
+    //   cardinals.cursor = 0;
+    // }
+    // handlers.onChange(cardinals);
   }
 
   // function move() {
@@ -106,7 +108,7 @@ export default function panHandler(
     onMoveShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponderCapture: () => true,
     onPanResponderRelease: release,
-    onPanResponderTerminate: release,
+    // onPanResponderTerminate: release,
     onPanResponderMove,
   }).panHandlers;
 }

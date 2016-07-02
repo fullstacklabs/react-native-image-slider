@@ -2,7 +2,7 @@
 import React, {Component} from 'react';
 import {
   Image,
-  View,
+  ScrollView,
   ProgressViewIOS,
   Animated,
   Dimensions,
@@ -51,14 +51,21 @@ export default class _Image extends Component {
     this.setState({progress: 0.9, done: true});
   }
   render() {
+    console.log(this.props.zoom);
     return (
-      <View
+      <ScrollView
         style={{
+          overflow: 'hidden',
           width: Dimensions.get('window').width,
           flex: 1,
         }}
+        minimumZoomScale={1}
+        maximumZoomScale={4}
+        zoomScale={1}
+        centerContent={true}
         >
         <Image
+          pointerEvents="none"
           source={{uri: this.props.image.url}}
           style={{
             alignSelf: 'center',
@@ -81,10 +88,11 @@ export default class _Image extends Component {
           style={{
             position: 'absolute',
             marginTop: -2,
-            width: this.props.image.width,
+            width: this.props.image.width * this.props.zoom,
+            alignSelf: 'center',
           }}
           />}
-      </View>
+      </ScrollView>
     );
   }
 }
