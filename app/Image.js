@@ -1,6 +1,12 @@
 // @flow
 import React, {Component} from 'react';
-import {Image, View, ProgressViewIOS, Animated, Easing, Dimensions} from 'react-native';
+import {
+  Image,
+  View,
+  ProgressViewIOS,
+  Animated,
+  Dimensions,
+} from 'react-native';
 // import scale from './scale';
 import type {IMAGE} from './ImageSlider';
 
