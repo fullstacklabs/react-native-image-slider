@@ -1,20 +1,15 @@
 {
-  "name": "FSLReactNativeImageSlider",
+  "name": "react-native-image-slider",
   "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start"
-  },
+  "main": "src/components/Slider",
   "dependencies": {
+    "lodash": "^4.13.1"
+  },
+  "devDependencies": {
     "babel-eslint": "^6.1.0",
     "babel-plugin-transform-flow-strip-types": "^6.8.0",
     "eslint": "^2.13.1",
     "eslint-plugin-react-native": "^1.1.0",
-    "lodash": "^4.13.1",
-    "react": "15.1.0",
-    "react-native": "0.28.0"
-  },
-  "devDependencies": {
     "eslint-plugin-react": "^5.2.2"
   }
 }
