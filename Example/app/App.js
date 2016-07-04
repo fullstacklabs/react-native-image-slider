@@ -69,6 +69,11 @@ const images = [
     width: 615,
     height: 409,
   },
+  {
+    source: require('../assets/13.jpg'),
+    width: 838,
+    height: 548,
+  },
 ];
 
 export default class App extends Component {
@@ -92,6 +97,7 @@ export default class App extends Component {
   }
   renderSlider() {
     const loadMoreAfter = this.state.images.length < images.length;
+    console.log({loadMoreAfter});
     // const loadMoreAfter = false;
     return (
       <Slider

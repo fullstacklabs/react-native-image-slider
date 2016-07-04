@@ -18,9 +18,9 @@ export default (nativeEvent, lastDistance, zoom) => {
       const {width} = Dimensions.get('window');
       const percent = Math.abs(distance / width * 100);
       if (direction === 'in') {
-        return zoom + ((zoom / 100 * percent) / 10);
+        return zoom + ((zoom / 100 * percent) / 2.5);
       }
-      return zoom - ((zoom / 100 * percent) / 10);
+      return zoom - ((zoom / 100 * percent) / 5);
     }
   }
 };

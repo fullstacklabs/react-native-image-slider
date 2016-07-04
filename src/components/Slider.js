@@ -147,6 +147,7 @@ export default class Slider extends Component {
         >
         {
           this.props.images
+            .filter(image => image)
             .filter((image, index) => index >= this.state.leftOffset &&
               index < this.state.rightOffset)
             .map((image, key) =>
@@ -159,6 +160,7 @@ export default class Slider extends Component {
                 onZoomEnd={() => {
                   this.zooming = false;
                 }}
+                onLoaded={() => console.log('Image loaded', key)}
                 />
             )
         }
