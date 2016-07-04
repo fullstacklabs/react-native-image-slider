@@ -52,6 +52,7 @@ export default class App extends Component {
       <Slider
         images={this.state.images}
         initial={this.state.initial}
+        loadMoreAfter={true}
         onEnd={() => {
           setTimeout(() => {
             if (this.state.images.length < images.length) {
@@ -61,10 +62,9 @@ export default class App extends Component {
                   ...this.state.images,
                   images[this.state.images.length],
                 ],
-                initial: this.state.images.length,
               });
             }
-          }, 1500);
+          }, 3000);
         }}
         />
     );

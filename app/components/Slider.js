@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {Animated, Dimensions, PanResponder} from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  PanResponder,
+  View,
+  Text,
+  ActivityIndicator,
+} from 'react-native';
 import Zoom from './Zoom';
 import calculateCardinals from '../lib/calculateCardinals';
 import type {CARDINALS} from '../lib/calculateCardinals';
@@ -18,6 +25,7 @@ export
 type PROPS = {
   images: Array<IMAGE>,
   onEnd?: Function,
+  loadMoreAfter?: boolean,
 };
 
 export default class Slider extends Component {
@@ -27,19 +35,21 @@ export default class Slider extends Component {
     ...calculateCardinals(this.props),
   };
   componentWillReceiveProps(props: PROPS) {
-    this.setState({...calculateCardinals(props)});
-    if (props.initial !== this.state.cursor) {
-      const {width} = Dimensions.get('window');
-      this.setState({cursor: props.initial}, () => {
-        Animated
-          .spring(this.state.left, {
-            toValue: props.initial * -width,
-            friction: 10,
-            tension: 50,
-          })
-          .start();
-      });
-    }
+    const cardinals = calculateCardinals(props);
+    const {
+      size,
+      leftBoundary,
+      rightBoundary,
+      leftOffset,
+      rightOffset,
+    } = cardinals;
+    this.setState({
+      size,
+      leftBoundary,
+      rightBoundary,
+      leftOffset,
+      rightOffset,
+    });
   }
   makeHandlers(): Object {
     return PanResponder.create({
@@ -74,6 +84,9 @@ export default class Slider extends Component {
     if (cursor > (rightBoundary - 1)) {
       this.props.onEnd();
       cursor = (rightBoundary - 1);
+      if (this.props.loadMoreAfter) {
+        cursor = rightBoundary;
+      }
     } else if (cursor === -1) {
       cursor = 0;
     }
@@ -95,6 +108,10 @@ export default class Slider extends Component {
   }
   render() {
     const {width, height} = Dimensions.get('window');
+    let totalWidth = width * this.props.images.length;
+    if (this.props.loadMoreAfter) {
+      totalWidth += width;
+    }
     return (
       <Animated.View
         style={{
@@ -103,7 +120,7 @@ export default class Slider extends Component {
           alignItems: 'center',
           justifyContent: 'center',
           height,
-          width: width * this.props.images.length,
+          width: totalWidth,
           transform: [
             {translateX: this.state.left},
           ],
@@ -122,6 +139,20 @@ export default class Slider extends Component {
             }}
             />
         )}
+        <View
+          style={{
+            width,
+            height,
+          }}
+          >
+          <ActivityIndicator
+            color="white"
+            size="large"
+            style={{
+              flex: 1,
+            }}
+            />
+        </View>
       </Animated.View>
     );
   }
