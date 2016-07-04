@@ -84,6 +84,16 @@ const images = [
     width: 494,
     height: 612,
   },
+  {
+    source: require('../assets/16.jpg'),
+    width: 612,
+    height: 380,
+  },
+  {
+    source: require('../assets/17.jpg'),
+    width: 612,
+    height: 380,
+  },
 ];
 
 export default class App extends Component {
@@ -95,10 +105,6 @@ export default class App extends Component {
       images[3],
       images[4],
       images[5],
-      // images[6],
-      // images[7],
-      // images[8],
-      // images[9],
     ],
     initial: 0,
   };
@@ -115,15 +121,21 @@ export default class App extends Component {
         initial={this.state.initial}
         loadMoreAfter={loadMoreAfter}
         onEnd={() => {
+          console.log('on End');
           if (loadMoreAfter) {
             setTimeout(() => {
-              const _images = this.state.images;
-              for (let i = 0; i < 10; i++) {
-                if (images[this.state.images.length + i]) {
-                  _images.push(images[this.state.images.length + i]);
+              console.log('loading more');
+              const nextImages = this.state.images;
+              for (let i = 0; i < 7; i++) {
+                const index = this.state.images.length + i;
+                if (images[index]) {
+                  nextImages.push(images[index]);
                 }
               }
-              this.setState({images: _images});
+              this.setState({images: [
+                ...this.state.images,
+                ...nextImages,
+              ]});
             }, 2000);
           }
         }}

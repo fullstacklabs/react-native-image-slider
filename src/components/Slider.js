@@ -36,29 +36,29 @@ export default class Slider extends Component {
     ...calculateCardinals(this.props),
   };
   componentWillReceiveProps(props: PROPS) {
-    console.log({props});
-    const {images, initial} = props;
-    if (images !== this.props.images || initial !== this.props.initial) {
-      console.log('changing cardinals');
-      const cardinals = calculateCardinals(props);
-      const {
-        size,
-        leftBoundary,
-        rightBoundary,
-        leftOffset,
-        rightOffset,
-      } = cardinals;
-      this.setState({
-        size,
-        leftBoundary,
-        rightBoundary,
-        leftOffset,
-        rightOffset,
-      });
-    }
+    console.log('NEW PROPS!', props);
+    const cardinals = calculateCardinals(props);
+    const {
+      size,
+      leftBoundary,
+      rightBoundary,
+      leftOffset,
+      rightOffset,
+    } = cardinals;
+    this.setState({
+      size,
+      leftBoundary,
+      rightBoundary,
+      leftOffset,
+      rightOffset,
+    });
   }
   shouldComponentUpdate(props: PROPS, state: STATE): boolean {
-    if (state.cursor !== this.state.cursor) {
+    if (
+      state.cursor !== this.state.cursor &&
+      state.rightOffset === this.state.rightOffset
+    ) {
+      console.log('canceling Slider update because cursor change is minor');
       return false;
     }
     return true;
@@ -96,11 +96,18 @@ export default class Slider extends Component {
     let {cursor, rightBoundary, rightOffset} = this.state;
     cursor += change;
     if (cursor > (rightOffset - 1)) {
-      newState.rightOffset = rightOffset + this.state.size;
-      if (newState.rightOffset > rightBoundary) {
-        newState.rightOffset = rightBoundary;
-        if (!this.props.loadMoreAfter) {
-          cursor -= change;
+      if (rightOffset < rightBoundary) {
+        newState.rightOffset = rightOffset + this.state.size;
+        if (newState.rightOffset > rightBoundary) {
+          newState.rightOffset = rightBoundary;
+        }
+      } else {
+        newState.rightOffset = rightOffset + this.state.size;
+        if (newState.rightOffset > rightBoundary) {
+          newState.rightOffset = rightBoundary;
+          if (!this.props.loadMoreAfter) {
+            cursor -= change;
+          }
         }
       }
     }
@@ -124,8 +131,13 @@ export default class Slider extends Component {
         tension: 100,
       })
       .start(() => {
-        this.state.cursor = cursor;
-        Object.assign(this.state, newState);
+        console.log({newState});
+        if (newState.rightOffset) {
+          this.setState({cursor, ...newState});
+        } else {
+          this.state.cursor = cursor;
+          Object.assign(this.state, newState);
+        }
       });
   }
   move(event, gestureState) {
@@ -160,22 +172,26 @@ export default class Slider extends Component {
         >
         {
           this.props.images
-            .filter(image => image)
-            .filter((image, index) => index >= this.state.leftOffset &&
-              index < this.state.rightOffset)
-            .map((image, key) =>
-              <Zoom
-                key={key}
-                {...image}
-                onZoomStart={() => {
-                  this.zooming = true;
-                }}
-                onZoomEnd={() => {
-                  this.zooming = false;
-                }}
-                onLoaded={() => console.log('Image loaded', key)}
-                />
-            )
+            .map((image, key) => {
+              if (
+                key >= this.state.leftOffset && key < this.state.rightOffset
+              ) {
+                return (
+                  <Zoom
+                    key={key}
+                    {...image}
+                    onZoomStart={() => {
+                      this.zooming = true;
+                    }}
+                    onZoomEnd={() => {
+                      this.zooming = false;
+                    }}
+                    onLoaded={() => console.log('Image loaded', key)}
+                    />
+                );
+              }
+              return <View key={key} />;
+            })
         }
         {this.state.rightOffset < this.state.rightBoundary &&
           <View
