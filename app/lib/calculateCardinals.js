@@ -1,11 +1,18 @@
 import _ from 'lodash';
 import {Dimensions, Animated} from 'react-native';
-import type {CARDINALS, PROPS} from '../ImageSlider';
+import type {PROPS} from '../ImageSlider';
 
-// A function to calculate bounds of images to show
-// For any start cursor (retrieved from initial image),
-// we'll start to show images a little bit before
-// then extend until we reach the default size
+export
+type CARDINALS = {
+  leftOffset: number,
+  rightOffset: number,
+  cursor: number,
+  left: Animated.Value,
+  size: number,
+  leftBoundary: number,
+  rightBoundary: number,
+};
+
 function calculateOffsets(cursor, size, outbound) {
   const is_odd = Boolean(size % 2),
     half = size / 2,
@@ -41,8 +48,5 @@ export default function calculateCardinals(props: PROPS): CARDINALS {
     leftOffset: start,
     rightOffset: end,
     left: new Animated.Value(cursor * -width),
-    innerLeft: new Animated.Value(0),
-    zooms: props.images.map(() => new Animated.Value(1)),
-    width: props.images.map((image) => new Animated.Value(image.width))
   };
 }

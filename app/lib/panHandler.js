@@ -47,23 +47,7 @@ export default function panHandler(
     const {changedTouches} = event.nativeEvent;
     if (changedTouches.length === 1) {
       if (cardinals.zooms.every(zoom => zoom._value === 1)) {
-        const {width} = Dimensions.get('window');
-        const relativeDistance = gestureState.dx / width;
-        const vx = gestureState.vx;
-        let change = 0;
-
-        if (relativeDistance < -0.5 || relativeDistance < 0 && vx <= 0.5) {
-          change = 1;
-        } else if (relativeDistance > 0.5 || relativeDistance > 0 && vx >= 0.5) {
-          change = -1;
-        }
-        cardinals.cursor += change;
-        if (cardinals.cursor > (cardinals.rightBoundary - 1)) {
-          cardinals.cursor = (cardinals.rightBoundary - 1);
-        } else if (cardinals.cursor === -1) {
-          cardinals.cursor = 0;
-        }
-        handlers.onChange(cardinals);
+        
       }
     } else {
       _previousX = null;
