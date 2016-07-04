@@ -7,7 +7,8 @@ type SCALE = {
   height: number,
 };
 
-export default function scale(srcWidth: number, srcHeight: number): SCALE {
+export default function calculateDimensions(
+  srcWidth: number, srcHeight: number): SCALE {
   const {width, height} = Dimensions.get('window');
   let ratio = [width / srcWidth, (height) / srcHeight];
   ratio = Math.min(ratio[0], ratio[1]);
