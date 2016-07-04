@@ -36,8 +36,10 @@ export default class Slider extends Component {
     ...calculateCardinals(this.props),
   };
   componentWillReceiveProps(props: PROPS) {
+    console.log({props});
     const {images, initial} = props;
     if (images !== this.props.images || initial !== this.props.initial) {
+      console.log('changing cardinals');
       const cardinals = calculateCardinals(props);
       const {
         size,
@@ -121,7 +123,10 @@ export default class Slider extends Component {
         friction: 10,
         tension: 100,
       })
-      .start(() => this.setState({cursor, ...newState}));
+      .start(() => {
+        this.state.cursor = cursor;
+        Object.assign(this.state, newState);
+      });
   }
   move(event, gestureState) {
     const dx = gestureState.dx;
