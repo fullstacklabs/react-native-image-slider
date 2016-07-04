@@ -12,6 +12,11 @@ const images = [
     source: require('../assets/demo-images/1.jpg'),
     width: 247,
     height: 238,
+  },
+  {
+    source: require('../assets/demo-images/2.jpg'),
+    width: 640,
+    height: 480,
   }
 ];
 
