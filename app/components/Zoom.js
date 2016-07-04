@@ -22,6 +22,8 @@ type STATE = {
   height: number,
   marginLeft: Animated.Value,
   _marginLeft: number,
+  marginTop: Animated.Value,
+  _marginTop: number,
 };
 
 type TOUCH = {
@@ -39,6 +41,8 @@ export default class ZoomImage extends Component {
     zoom: new Animated.Value(1),
     marginLeft: new Animated.Value(0),
     _marginLeft: 0,
+    marginTop: new Animated.Value(0),
+    _marginTop: 0,
     ...calculateDimensions(this.props.width, this.props.height),
   };
   animate_zoom: boolean = false;
@@ -48,6 +52,7 @@ export default class ZoomImage extends Component {
   lastDistance: ?number = null;
   panning: boolean = false;
   dx: number = 0;
+  dy: number = 0;
   zoomer() {
     if (typeof this.lastDistance === 'number') {
       let zoom = calculateZoom(
@@ -70,7 +75,6 @@ export default class ZoomImage extends Component {
           this.animate_zoom = false;
         }
         if (zoom < 3) {
-          console.log('zooming', zoom);
           Animated
             .spring(this.state.zoom, {
               toValue: zoom,
@@ -89,10 +93,17 @@ export default class ZoomImage extends Component {
   }
   panner() {
     Animated
-      .timing(this.state.marginLeft, {
-        toValue: this.state._marginLeft + this.dx,
-        duration: 100,
-      })
+      .parallel([
+        Animated.timing(this.state.marginLeft, {
+          toValue: this.state._marginLeft + this.dx,
+          duration: 100,
+        }),
+
+        Animated.timing(this.state.marginTop, {
+          toValue: this.state._marginTop + this.dy,
+          duration: 100,
+        }),
+      ])
       .start(() => {
         if (this.animate_pan) {
           return this.panner();
@@ -139,7 +150,10 @@ export default class ZoomImage extends Component {
     this.lastDistance = null;
     this.panning = false;
     this.animate_pan = false;
-    this.setState({_marginLeft: this.state.marginLeft._value});
+    this.setState({
+      _marginLeft: this.state.marginLeft._value,
+      _marginTop: this.state.marginTop._value,
+    });
   };
   onMove: Function = (event, gestureState) => {
     this.lastEvent = this.nativeEvent;
@@ -158,16 +172,18 @@ export default class ZoomImage extends Component {
       this.zoomer();
     }
   }
-  onPan(gestureState: {dx: number}) {
+  onPan(gestureState: {dx: number, dy: number}) {
     console.log('we are panning');
     if (this.state.zoom._value > 1) {
       this.panning = true;
       if (!this.animate_pan) {
         this.animate_pan = true;
         this.dx = gestureState.dx;
+        this.dy = gestureState.dy;
         this.panner();
       } else {
         this.dx = gestureState.dx;
+        this.dy = gestureState.dy;
       }
     }
   }
@@ -183,6 +199,7 @@ export default class ZoomImage extends Component {
           transform: [
             {scale: this.state.zoom},
             {translateX: this.state.marginLeft},
+            {translateY: this.state.marginTop},
           ]
         }}
         {...this.makeHandlers()}
