@@ -41,7 +41,8 @@ export default function calculateCardinals(props: PROPS): CARDINALS {
     leftOffset: start,
     rightOffset: end,
     left: new Animated.Value(cursor * -width),
-    _zoom: 1,
-    zoom: new Animated.Value(1),
+    innerLeft: new Animated.Value(0),
+    zooms: props.images.map(() => new Animated.Value(1)),
+    width: props.images.map((image) => new Animated.Value(image.width))
   };
 }

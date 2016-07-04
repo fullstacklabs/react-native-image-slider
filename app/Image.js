@@ -53,64 +53,29 @@ export default class _Image extends Component {
     this.setState({progress: 0.9, done: true});
   }
   render() {
-    console.log(this.props.zoom);
+    const style = {
+      overflow: 'hidden',
+      width: Dimensions.get('window').width,
+      flex: 1,
+      borderWidth: 2,
+      borderColor: 'white',
+      transform: [{scale: this.props.zooms[this.props.index]}],
+    };
+    // if (this.props.cursor === this.props.image.id) {
+    //   style.transform = [{scale: this.props.zoom}];
+    // } else {
+    //   style.transform = [{scale: 1}];
+    // }
     return (
-      <View
-        style={{
-          overflow: 'hidden',
-          width: Dimensions.get('window').width,
-          flex: 1,
-        }}
+      <Animated.View
+        style={style}
         >
-        <Animated.Image
-          {...PanResponder.create({
-            onStartShouldSetPanResponder: () => true,
-            onStartShouldSetPanResponderCapture: () => false,
-            onMoveShouldSetPanResponder: () => true,
-            onMoveShouldSetPanResponderCapture: () => false,
-            onPanResponderRelease: () => {
-              console.log('release');
-            },
-            // onPanResponderTerminate: release,
-            onPanResponderMove: (event) => {
-              const {nativeEvent} = event;
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('===============================');
-              console.log('moving', nativeEvent);
-              if (nativeEvent.changedTouches.length === 2) {
-                Animated.timing(this.state.scale, {
-                  toValue: 1.75,
-                  duration: 0,
-                }).start();
-              } else {
-                // this.state.scale.setValue(1.5);
-              }
-              // this.state.scale.setValue(1.25);
-              // Animated
-              //   .timing(this.state.scale, {
-              //     toValue: 1.5,
-              //     duration: -15,
-              //   })
-              //   .start();
-            },
-          }).panHandlers}
+        <Image
           source={{uri: this.props.image.url}}
           style={{
             alignSelf: 'center',
-            width: this.props.image.width * this.props.zoom,
-            height: this.props.image.height * this.props.zoom,
-            transform: [{scale: this.state.scale}],
+            width: this.props.image.width,
+            height: this.props.image.height,
             ...this.props.style,
           }}
           onLoadStart={() => {
@@ -128,11 +93,11 @@ export default class _Image extends Component {
           style={{
             position: 'absolute',
             marginTop: -2,
-            width: this.props.image.width * this.props.zoom,
+            width: this.props.image.width * this.props.zooms[this.props.index],
             alignSelf: 'center',
           }}
           />}
-      </View>
+      </Animated.View>
     );
   }
 }

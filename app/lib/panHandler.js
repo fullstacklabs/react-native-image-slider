@@ -9,78 +9,66 @@ type PROPS = {
   onImageChange?: Function,
 };
 
-let _previousDistanceX, _previousDistanceY;
+let _previousX = null,
+  _previousY = null;
 
 export default function panHandler(
     cardinals: CARDINALS,
     handlers: {[handler: string]: Array<Function>},
   ) {
   function onPanResponderMove(event, gestureState) {
-    // console.log('onPanResponderMove', {event, gestureState});
-    for (const key in event) {
-      console.log({key, event: event[key]});
-    }
-    const {changedTouches, target} = event.nativeEvent;
-    console.log(event.nativeEvent);
-    if (target === 5 && changedTouches.length === 1) {
-      console.log('pinch');
+    const {changedTouches, pageX, pageY} = event.nativeEvent;
+    if (changedTouches.length === 1) {
+      console.log('move.', cardinals._zoom);
       const dx = gestureState.dx;
       const {width} = Dimensions.get('window');
-      cardinals.left.setValue(-(cardinals.cursor * width) + Math.round(dx));
-      // let distanceX =
-      //   changedTouches[0].locationX - changedTouches[1].locationX;
-      // let distanceY =
-      //   changedTouches[0].locationY - changedTouches[1].locationY;
-      // if (
-      //   distanceX > _previousDistanceX ||
-      //   distanceY > _previousDistanceY ||
-      //   (!_previousDistanceX && !_previousDistanceY)
-      // ) {
-      //   _previousDistanceX = distanceX;
-      //   _previousDistanceY = distanceY;
-      //   cardinals._zoom += 0.025;
-      //   console.log('^', {zoom: cardinals._zoom});
-      //   handlers.onZoom(cardinals);
-      // } else if (
-      //   distanceX < _previousDistanceX ||
-      //   distanceY < _previousDistanceY ||
-      //   (!_previousDistanceX && !_previousDistanceY)
-      // ) {
-      //   _previousDistanceX = distanceX;
-      //   _previousDistanceY = distanceY;
-      //   cardinals._zoom -= 0.025;
-      //   console.log('\\/', {zoom: cardinals._zoom});
-      //   if (cardinals._zoom >= 1) {
-      //     handlers.onZoom(cardinals);
-      //   }
-      // }
-      // cardinals.zoom.setValue(cardinals._zoom);
+      if (cardinals.zooms.every(zoom => zoom._value === 1)) {
+        cardinals.left.setValue(-(cardinals.cursor * width) + Math.round(dx));
+      } else {
+        cardinals.left.setValue(-(cardinals.cursor * width) + Math.round(dx));
+      }
     } else {
-      event.preventDefault();
-      // console.log('isDefaultPrevented', event.isDefaultPrevented());
+      const zoom = cardinals.zooms[cardinals.cursor]._value;
+      console.log('....');
+      if (_previousX !== null) {
+        if (pageX < _previousX || pageY < _previousY) {
+          cardinals.zooms[cardinals.cursor].setValue(zoom + 0.01);
+        } else if (zoom >= 1.01) {
+          cardinals.zooms[cardinals.cursor].setValue(zoom - 0.01);
+        }
+      }
+      _previousX = pageX;
+      _previousY = pageY;
     }
     return true;
   }
 
   function release(event, gestureState) {
-    // console.log('release', event, gestureState);
-    // const {width} = Dimensions.get('window');
-    // const relativeDistance = gestureState.dx / width;
-    // const vx = gestureState.vx;
-    // let change = 0;
-    //
-    // if (relativeDistance < -0.5 || relativeDistance < 0 && vx <= 0.5) {
-    //   change = 1;
-    // } else if (relativeDistance > 0.5 || relativeDistance > 0 && vx >= 0.5) {
-    //   change = -1;
-    // }
-    // cardinals.cursor += change;
-    // if (cardinals.cursor > (cardinals.rightBoundary - 1)) {
-    //   cardinals.cursor = (cardinals.rightBoundary - 1);
-    // } else if (cardinals.cursor === -1) {
-    //   cardinals.cursor = 0;
-    // }
-    // handlers.onChange(cardinals);
+    const {changedTouches} = event.nativeEvent;
+    if (changedTouches.length === 1) {
+      if (cardinals.zooms.every(zoom => zoom._value === 1)) {
+        const {width} = Dimensions.get('window');
+        const relativeDistance = gestureState.dx / width;
+        const vx = gestureState.vx;
+        let change = 0;
+
+        if (relativeDistance < -0.5 || relativeDistance < 0 && vx <= 0.5) {
+          change = 1;
+        } else if (relativeDistance > 0.5 || relativeDistance > 0 && vx >= 0.5) {
+          change = -1;
+        }
+        cardinals.cursor += change;
+        if (cardinals.cursor > (cardinals.rightBoundary - 1)) {
+          cardinals.cursor = (cardinals.rightBoundary - 1);
+        } else if (cardinals.cursor === -1) {
+          cardinals.cursor = 0;
+        }
+        handlers.onChange(cardinals);
+      }
+    } else {
+      _previousX = null;
+      _previousY = null;
+    }
   }
 
   // function move() {
@@ -109,6 +97,7 @@ export default function panHandler(
 
   return PanResponder.create({
     onStartShouldSetPanResponder: (event) => {
+      return true;
       const {changedTouches} = event.nativeEvent;
       console.log('start', changedTouches.length);
       for (const key in event) {
@@ -119,6 +108,7 @@ export default function panHandler(
     },
     onStartShouldSetPanResponderCapture: () => false,
     onMoveShouldSetPanResponder: (event) => {
+      return true;
       const {changedTouches} = event.nativeEvent;
       return changedTouches.length === 1;
     },

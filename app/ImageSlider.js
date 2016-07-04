@@ -93,9 +93,9 @@ export default class ImageSlider extends Component {
     //     easing: Easing.linear,
     //   })
     //   .start();
-    this.setState({zooming: true});
   };
   render() {
+    console.log(this);
     const {height, width} = Dimensions.get('window');
     return (
       <View style={{
@@ -108,6 +108,7 @@ export default class ImageSlider extends Component {
           )}
           style={[
             {
+              overflow: 'hidden',
               backgroundColor: 'black',
               flexDirection: 'row',
               alignItems: 'center',
@@ -134,11 +135,12 @@ export default class ImageSlider extends Component {
       if (inset) {
         return <Image
           key={index}
+          index={index}
           image={{
             ...image,
             ...scale(image.width, image.height),
           }}
-          zoom={this.state._zoom}
+          {...this.state}
           onZoom={() => {
             console.log('hello');
           }}
