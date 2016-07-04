@@ -139,7 +139,7 @@ export default class Slider extends Component {
             }}
             />
         )}
-        <View
+        {this.props.loadMoreAfter && <View
           style={{
             width,
             height,
@@ -152,7 +152,7 @@ export default class Slider extends Component {
               flex: 1,
             }}
             />
-        </View>
+        </View>}
       </Animated.View>
     );
   }

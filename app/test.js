@@ -52,19 +52,19 @@ export default class App extends Component {
       <Slider
         images={this.state.images}
         initial={this.state.initial}
-        loadMoreAfter={true}
+        loadMoreAfter={this.state.images.length < images.length}
         onEnd={() => {
-          setTimeout(() => {
-            if (this.state.images.length < images.length) {
-              console.log('load more');
+          if (this.state.images.length < images.length) {
+            console.log('load more');
+            setTimeout(() => {
               this.setState({
                 images: [
                   ...this.state.images,
                   images[this.state.images.length],
                 ],
               });
-            }
-          }, 3000);
+            }, 3000);
+          }
         }}
         />
     );
