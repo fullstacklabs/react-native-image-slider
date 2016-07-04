@@ -1,6 +1,6 @@
 // @flow
 import React, {Component} from 'react';
-import {PanResponder, Dimensions} from 'react-native';
+import {PanResponder, Dimensions, Animated} from 'react-native';
 import scale from '../lib/scale';
 import Image from './Image';
 
@@ -13,10 +13,10 @@ type PROPS = {
 };
 
 type STATE = {
-  zoom: number,
+  zoom: Animated.Value,
   width: number,
   height: number,
-  marginLeft: number,
+  marginLeft: Animated.Value,
 };
 
 type TOUCH = {
@@ -31,17 +31,20 @@ type NATIVE_EVENT = {
 export default class ZoomImage extends Component {
   props: PROPS;
   state: STATE = {
-    zoom: 1,
-    marginLeft: 0,
+    zoom: new Animated.Value(1),
+    marginLeft: new Animated.Value(0),
+    _marginLeft: 0,
     ...scale(this.props.width, this.props.height),
   };
-  animate: boolean = false;
+  animate_zoom: boolean = false;
+  animate_pan: boolean = false;
   nativeEvent: NATIVE_EVENT;
   lastEvent: NATIVE_EVENT;
   lastDistance: ?number = null;
   panning: boolean = false;
+  dx: number = 0;
   zoomer() {
-    if (this.animate) {
+    if (this.animate_zoom) {
       const left = this.nativeEvent.changedTouches[0];
       const right = this.nativeEvent.changedTouches[1];
       const abstractLeft = left.pageX + left.pageY;
@@ -58,32 +61,47 @@ export default class ZoomImage extends Component {
           const {width} = Dimensions.get('window');
           const percent = Math.abs(distance / width * 100);
           let {zoom} = this.state;
+          zoom = zoom._value;
           if (direction === 'in') {
-            zoom += ((this.state.zoom / 100 * percent) / 10);
+            zoom += ((zoom / 100 * percent) / 10);
           } else {
-            zoom -= ((this.state.zoom / 100 * percent) / 10);
+            zoom -= ((zoom / 100 * percent) / 10);
           }
           if (zoom >= 1) {
-            console.log(
-              direction,
-              `${this.lastDistance}..${distance}`,
-              `(${this.lastDistance - distance})`,
-              `${Math.floor(percent)}%`,
-              `x${zoom.toFixed(2)}`,
-              this.state.zoom.toFixed(2),
-            );
-            this.setState(
-              {zoom},
-              () => {
-                setTimeout(() => this.zoomer(), 100);
-              },
-            );
+            Animated
+              .spring(this.state.zoom, {
+                toValue: zoom,
+              })
+              .start(() => this.zoomer());
           }
         }
       }
       this.lastDistance = distance;
       setTimeout(() => this.zoomer(), 100);
     }
+  }
+  panner() {
+    console.log('panning', this.state._marginLeft + this.dx, this.props.width);
+    Animated
+      .timing(this.state.marginLeft, {
+        toValue: this.state._marginLeft + this.dx,
+        duration: 100,
+      })
+      .start(() => {
+        if (this.animate_pan) {
+          return this.panner();
+        }
+        if (Math.abs(this.state._marginLeft + this.dx) > this.props.width) {
+          console.log('???');
+          Animated
+            .spring(this.state.marginLeft, {
+              toValue: 0,
+              friction: 10,
+              tension: 50,
+            })
+            .start();
+        }
+      });
   }
   makeHandlers(): Object {
     return PanResponder.create({
@@ -106,12 +124,22 @@ export default class ZoomImage extends Component {
     console.log('release');
     this.lastEvent = this.nativeEvent;
     this.nativeEvent = event.nativeEvent;
-    this.animate = false;
+    this.animate_zoom = false;
     this.lastDistance = null;
     if (this.panning) {
-      this.setState({marginLeft: 0});
+      // setTimeout(() => {
+      //   Animated
+      //     .spring(this.state.marginLeft, {
+      //       toValue: 0,
+      //     })
+      //     .start(() => {
+      //       console.log('.............');
+      //     });
+      // }, 150);
     }
     this.panning = false;
+    this.animate_pan = false;
+    this.setState({_marginLeft: this.state.marginLeft._value});
   };
   onMove: Function = (event, gestureState) => {
     this.lastEvent = this.nativeEvent;
@@ -125,24 +153,25 @@ export default class ZoomImage extends Component {
   };
   onZoom() {
     this.panning = false;
-    if (!this.animate) {
-      this.animate = true;
+    if (!this.animate_zoom) {
+      this.animate_zoom = true;
       this.zoomer();
     }
   }
-  onPan(gestureState) {
+  onPan(gestureState: {dx: number}) {
     this.panning = true;
-    const dx = gestureState.dx;
-    this.setState({marginLeft: this.state.marginLeft + dx});
-    // -(cardinals.cursor * width) + Math.round(dx)
+    if (!this.animate_pan) {
+      this.animate_pan = true;
+      this.dx = gestureState.dx;
+      this.panner();
+    } else {
+      this.dx = gestureState.dx;
+    }
   }
   render() {
-    // setInterval(() => {
-    //   if (this.state.zoom > 4) return;
-    //   this.setState({zoom: this.state.zoom + 0.01});
-    // }, 500);
+    const AnimatedImage = Animated.createAnimatedComponent(Image);
     return (
-      <Image
+      <AnimatedImage
         source={this.props.source}
         style={{
           ...this.props.style,
