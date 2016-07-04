@@ -12,6 +12,8 @@ type PROPS = {
   source: number|{uri: string},
   [field: string]: any,
   style: any,
+  onZoomStart: Function,
+  onZoomEnd: Function,
 };
 
 type STATE = {
@@ -47,14 +49,25 @@ export default class ZoomImage extends Component {
   panning: boolean = false;
   dx: number = 0;
   zoomer() {
-    console.log('zoomer');
     if (typeof this.lastDistance === 'number') {
-      const zoom = calculateZoom(
+      let zoom = calculateZoom(
         this.nativeEvent,
         this.lastDistance,
         this.state.zoom._value,
       );
-      if (zoom >= 1 && zoom <= 4) {
+      if (zoom < 1) {
+        zoom = 1;
+      }
+      if (zoom <= 4) {
+        if (
+          this.state.zoom._value === 1 &&
+          typeof this.props.onZoomStart === 'function'
+        ) {
+          this.props.onZoomStart();
+        }
+        if (zoom === 1) {
+          this.props.onZoomEnd();
+        }
         Animated
           .spring(this.state.zoom, {
             toValue: zoom,
@@ -71,7 +84,6 @@ export default class ZoomImage extends Component {
     }
   }
   panner() {
-    console.log('panning', this.state._marginLeft + this.dx, this.props.width);
     Animated
       .timing(this.state.marginLeft, {
         toValue: this.state._marginLeft + this.dx,
@@ -103,7 +115,13 @@ export default class ZoomImage extends Component {
         return this.state.zoom > 1;
       },
       onStartShouldSetPanResponderCapture: () => false,
-      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (event) => {
+        const {nativeEvent} = event;
+        if (nativeEvent.changedTouches.length === 2) {
+          return true;
+        }
+        return this.state.zoom > 1;
+      },
       onMoveShouldSetPanResponderCapture: () => false,
       onPanResponderRelease: this.onRelease,
       onPanResponderTerminate: this.onRelease,
@@ -111,7 +129,6 @@ export default class ZoomImage extends Component {
     }).panHandlers;
   }
   onRelease: Function = (event) => {
-    console.log('release');
     this.lastEvent = this.nativeEvent;
     this.nativeEvent = event.nativeEvent;
     this.animate_zoom = false;
@@ -121,7 +138,6 @@ export default class ZoomImage extends Component {
     this.setState({_marginLeft: this.state.marginLeft._value});
   };
   onMove: Function = (event, gestureState) => {
-    console.log('move');
     this.lastEvent = this.nativeEvent;
     this.nativeEvent = event.nativeEvent;
     const {changedTouches} = event.nativeEvent;
@@ -132,7 +148,6 @@ export default class ZoomImage extends Component {
     }
   };
   onZoom() {
-    console.log('zoom');
     this.panning = false;
     if (!this.animate_zoom) {
       this.animate_zoom = true;

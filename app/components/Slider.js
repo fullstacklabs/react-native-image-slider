@@ -8,6 +8,7 @@ export
 type STATE = CARDINALS;
 
 export default class Slider extends Component {
+  zooming: boolean = false;
   state: STATE = {
     ...calculateCardinals(this.props),
   };
@@ -15,10 +16,13 @@ export default class Slider extends Component {
     return PanResponder.create({
       onStartShouldSetPanResponder: (event) => {
         const {nativeEvent} = event;
-        return nativeEvent.changedTouches.length === 1;
+        return nativeEvent.changedTouches.length === 1 && !this.zooming;
       },
       onStartShouldSetPanResponderCapture: () => false,
-      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (event) => {
+        const {nativeEvent} = event;
+        return nativeEvent.changedTouches.length === 1 && !this.zooming;
+      },
       onMoveShouldSetPanResponderCapture: () => false,
       onPanResponderRelease: this.release.bind(this),
       onPanResponderTerminate: this.release.bind(this),
@@ -75,7 +79,20 @@ export default class Slider extends Component {
         }}
         {...this.makeHandlers()}
         >
-        {this.props.images.map((image, key) => <Zoom {...image} key={key} />)}
+        {this.props.images.map((image, key) =>
+          <Zoom
+            key={key}
+            {...image}
+            onZoomStart={() => {
+              console.log('zoom start');
+              this.zooming = true;
+            }}
+            onZoomEnd={() => {
+              console.log('zoom end');
+              this.zooming = false;
+            }}
+            />
+        )}
       </Animated.View>
     );
   }
