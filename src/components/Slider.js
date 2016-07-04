@@ -73,14 +73,25 @@ export default class Slider extends Component {
     const relativeDistance = gestureState.dx / width;
     const vx = gestureState.vx;
     let change = 0;
+    const newState = {};
 
     if (relativeDistance < -0.5 || relativeDistance < 0 && vx <= 0.5) {
       change = 1;
     } else if (relativeDistance > 0.5 || relativeDistance > 0 && vx >= 0.5) {
       change = -1;
     }
-    let {cursor, rightBoundary} = this.state;
+    console.log({cursor: this.state.cursor});
+    let {cursor, rightBoundary, rightOffset} = this.state;
     cursor += change;
+    if (cursor > (rightOffset - 1)) {
+      newState.rightOffset = rightOffset + this.state.size;
+      if (newState.rightOffset > rightBoundary) {
+        newState.rightOffset = rightBoundary;
+        if (!this.props.loadMoreAfter) {
+          cursor -= change;
+        }
+      }
+    }
     if (cursor > (rightBoundary - 1)) {
       if (typeof this.props.onEnd === 'function') {
         this.props.onEnd();
@@ -89,10 +100,12 @@ export default class Slider extends Component {
       if (this.props.loadMoreAfter) {
         cursor = rightBoundary;
       }
-    } else if (cursor === -1) {
+    }
+    if (cursor === -1) {
       cursor = 0;
     }
-    this.setState({cursor}, () => {
+    console.log({cursor, rightOffset, rightBoundary});
+    this.setState({cursor, ...newState}, () => {
       Animated
         .spring(this.state.left, {
           toValue: cursor * -width,
@@ -108,9 +121,13 @@ export default class Slider extends Component {
     this.state.left.setValue(-(this.state.cursor * width) + Math.round(dx));
   }
   render() {
+    console.log(this);
     const {width, height} = Dimensions.get('window');
-    let totalWidth = width * this.props.images.length;
+    let totalWidth = width * (this.state.rightOffset - this.state.leftOffset);
     if (this.props.loadMoreAfter) {
+      totalWidth += width;
+    }
+    if (this.state.rightOffset < this.state.rightBoundary) {
       totalWidth += width;
     }
     return (
@@ -128,32 +145,55 @@ export default class Slider extends Component {
         }}
         {...this.makeHandlers()}
         >
-        {this.props.images.map((image, key) =>
-          <Zoom
-            key={key}
-            {...image}
-            onZoomStart={() => {
-              this.zooming = true;
-            }}
-            onZoomEnd={() => {
-              this.zooming = false;
-            }}
-            />
-        )}
-        {this.props.loadMoreAfter && <View
-          style={{
-            width,
-            height,
-          }}
-          >
-          <ActivityIndicator
-            color="white"
-            size="large"
+        {
+          this.props.images
+            .filter((image, index) => index >= this.state.leftOffset &&
+              index < this.state.rightOffset)
+            .map((image, key) =>
+              <Zoom
+                key={key}
+                {...image}
+                onZoomStart={() => {
+                  this.zooming = true;
+                }}
+                onZoomEnd={() => {
+                  this.zooming = false;
+                }}
+                />
+            )
+        }
+        {this.state.rightOffset < this.state.rightBoundary &&
+          <View
             style={{
-              flex: 1,
+              width,
+              height,
             }}
-            />
-        </View>}
+            >
+            <ActivityIndicator
+              color="white"
+              size="large"
+              style={{
+                flex: 1,
+              }}
+              />
+          </View>
+        }
+        {this.props.loadMoreAfter &&
+          <View
+            style={{
+              width,
+              height,
+            }}
+            >
+            <ActivityIndicator
+              color="white"
+              size="large"
+              style={{
+                flex: 1,
+              }}
+              />
+          </View>
+        }
       </Animated.View>
     );
   }
