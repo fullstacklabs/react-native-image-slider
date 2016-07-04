@@ -74,6 +74,16 @@ const images = [
     width: 838,
     height: 548,
   },
+  {
+    source: require('../assets/14.jpg'),
+    width: 650,
+    height: 440,
+  },
+  {
+    source: require('../assets/15.jpg'),
+    width: 494,
+    height: 612,
+  },
 ];
 
 export default class App extends Component {
@@ -108,15 +118,13 @@ export default class App extends Component {
           if (loadMoreAfter) {
             console.log('load more');
             setTimeout(() => {
-              this.setState({
-                images: [
-                  ...this.state.images,
-                  images[this.state.images.length],
-                  images[this.state.images.length + 1],
-                  images[this.state.images.length + 2],
-                  images[this.state.images.length + 3],
-                ],
-              });
+              const _images = this.state.images;
+              for (let i = 0; i < 10; i++) {
+                if (images[this.state.images.length + i]) {
+                  _images.push(images[this.state.images.length + i]);
+                }
+              }
+              this.setState({images: _images});
             }, 2000);
           }
         }}
