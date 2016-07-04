@@ -116,7 +116,6 @@ export default class App extends Component {
         loadMoreAfter={loadMoreAfter}
         onEnd={() => {
           if (loadMoreAfter) {
-            console.log('load more');
             setTimeout(() => {
               const _images = this.state.images;
               for (let i = 0; i < 10; i++) {

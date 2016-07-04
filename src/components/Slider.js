@@ -24,6 +24,7 @@ type IMAGE = {
 export
 type PROPS = {
   images: Array<IMAGE>,
+  initial?: number,
   onEnd?: Function,
   loadMoreAfter?: boolean,
 };
@@ -35,21 +36,30 @@ export default class Slider extends Component {
     ...calculateCardinals(this.props),
   };
   componentWillReceiveProps(props: PROPS) {
-    const cardinals = calculateCardinals(props);
-    const {
-      size,
-      leftBoundary,
-      rightBoundary,
-      leftOffset,
-      rightOffset,
-    } = cardinals;
-    this.setState({
-      size,
-      leftBoundary,
-      rightBoundary,
-      leftOffset,
-      rightOffset,
-    });
+    const {images, initial} = props;
+    if (images !== this.props.images || initial !== this.props.initial) {
+      const cardinals = calculateCardinals(props);
+      const {
+        size,
+        leftBoundary,
+        rightBoundary,
+        leftOffset,
+        rightOffset,
+      } = cardinals;
+      this.setState({
+        size,
+        leftBoundary,
+        rightBoundary,
+        leftOffset,
+        rightOffset,
+      });
+    }
+  }
+  shouldComponentUpdate(props: PROPS, state: STATE): boolean {
+    if (state.cursor !== this.state.cursor) {
+      return false;
+    }
+    return true;
   }
   makeHandlers(): Object {
     return PanResponder.create({
@@ -105,15 +115,13 @@ export default class Slider extends Component {
       cursor = 0;
     }
     console.log({cursor, rightOffset, rightBoundary});
-    this.setState({cursor, ...newState}, () => {
-      Animated
-        .spring(this.state.left, {
-          toValue: cursor * -width,
-          friction: 10,
-          tension: 100,
-        })
-        .start();
-    });
+    Animated
+      .spring(this.state.left, {
+        toValue: cursor * -width,
+        friction: 10,
+        tension: 100,
+      })
+      .start(() => this.setState({cursor, ...newState}));
   }
   move(event, gestureState) {
     const dx = gestureState.dx;

@@ -21,9 +21,7 @@ type STATE = {
   width: number,
   height: number,
   marginLeft: Animated.Value,
-  _marginLeft: number,
   marginTop: Animated.Value,
-  _marginTop: number,
 };
 
 type TOUCH = {
@@ -40,11 +38,11 @@ export default class ZoomImage extends Component {
   state: STATE = {
     zoom: new Animated.Value(1),
     marginLeft: new Animated.Value(0),
-    _marginLeft: 0,
     marginTop: new Animated.Value(0),
-    _marginTop: 0,
     ...calculateDimensions(this.props.width, this.props.height),
   };
+  marginLeft: number = 0;
+  marginTop: number = 0;
   animate_zoom: boolean = false;
   animate_pan: boolean = false;
   nativeEvent: NATIVE_EVENT;
@@ -92,15 +90,20 @@ export default class ZoomImage extends Component {
     }
   }
   panner() {
+    const {width} = Dimensions.get('window');
+    const marginRight = Math.abs(width - (width + this.state.marginLeft._value));
+    const left = marginRight < 100 ? this.marginLeft + this.dx :
+      this.state._marginLeft;
+    console.log({marginRight, left});
     Animated
       .parallel([
         Animated.timing(this.state.marginLeft, {
-          toValue: this.state._marginLeft + this.dx,
+          toValue: left,
           duration: 100,
         }),
 
         Animated.timing(this.state.marginTop, {
-          toValue: this.state._marginTop + this.dy,
+          toValue: this.marginTop + this.dy,
           duration: 100,
         }),
       ])
@@ -108,13 +111,21 @@ export default class ZoomImage extends Component {
         if (this.animate_pan) {
           return this.panner();
         }
-        if (Math.abs(this.state._marginLeft + this.dx) > this.props.width) {
+        if (Math.abs(left) > this.props.width) {
           this.dx = 0;
           Animated
             .spring(this.state.marginLeft, {
               toValue: 0,
               friction: 10,
-              tension: 50,
+              tension: 100,
+            })
+            .start(() => this.setState({_marginLeft: 0}));
+        } else if (marginRight < 100) {
+          Animated
+            .spring(this.state.marginLeft, {
+              toValue: 0,
+              friction: 10,
+              tension: 100,
             })
             .start(() => this.setState({_marginLeft: 0}));
         }
@@ -150,10 +161,8 @@ export default class ZoomImage extends Component {
     this.lastDistance = null;
     this.panning = false;
     this.animate_pan = false;
-    this.setState({
-      _marginLeft: this.state.marginLeft._value,
-      _marginTop: this.state.marginTop._value,
-    });
+    this.marginLeft = this.state.marginLeft._value;
+    this.marginTop = this.state.marginTop._value;
   };
   onMove: Function = (event, gestureState) => {
     this.lastEvent = this.nativeEvent;
@@ -188,6 +197,7 @@ export default class ZoomImage extends Component {
     }
   }
   render() {
+    console.log(this);
     const AnimatedImage = Animated.createAnimatedComponent(Image);
     return (
       <AnimatedImage
