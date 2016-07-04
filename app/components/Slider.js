@@ -84,11 +84,9 @@ export default class Slider extends Component {
             key={key}
             {...image}
             onZoomStart={() => {
-              console.log('zoom start');
               this.zooming = true;
             }}
             onZoomEnd={() => {
-              console.log('zoom end');
               this.zooming = false;
             }}
             />

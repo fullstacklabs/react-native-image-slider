@@ -6,6 +6,7 @@
 
 import React, {Component} from 'react';
 import Slider from './components/Slider';
+import Zoom from './components/Zoom';
 
 const images = [
   {
@@ -22,8 +23,21 @@ const images = [
 
 export default class App extends Component {
   render() {
+    return this.renderSlider();
+  }
+  renderSlider() {
     return (
       <Slider images={images} />
     );
+  }
+  renderZoom() {
+    return <Zoom
+      style={{marginTop: 150}}
+      {...images[0]}
+      onZoomStart={() => {
+      }}
+      onZoomEnd={() => {
+      }}
+      />;
   }
 }

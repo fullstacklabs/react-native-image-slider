@@ -67,6 +67,7 @@ export default class ZoomImage extends Component {
         }
         if (zoom === 1) {
           this.props.onZoomEnd();
+          this.animate_zoom = false;
         }
         Animated
           .spring(this.state.zoom, {
@@ -112,7 +113,7 @@ export default class ZoomImage extends Component {
         if (nativeEvent.changedTouches.length === 2) {
           return true;
         }
-        return this.state.zoom > 1;
+        return this.state.zoom._value > 1;
       },
       onStartShouldSetPanResponderCapture: () => false,
       onMoveShouldSetPanResponder: (event) => {
@@ -120,7 +121,7 @@ export default class ZoomImage extends Component {
         if (nativeEvent.changedTouches.length === 2) {
           return true;
         }
-        return this.state.zoom > 1;
+        return this.state.zoom._value > 1;
       },
       onMoveShouldSetPanResponderCapture: () => false,
       onPanResponderRelease: this.onRelease,
@@ -155,6 +156,7 @@ export default class ZoomImage extends Component {
     }
   }
   onPan(gestureState: {dx: number}) {
+    console.log('we are panning');
     if (this.state.zoom._value > 1) {
       this.panning = true;
       if (!this.animate_pan) {
