@@ -7,11 +7,40 @@ import type {CARDINALS} from '../lib/calculateCardinals';
 export
 type STATE = CARDINALS;
 
+export
+type IMAGE = {
+  width: number,
+  height: number,
+  source: number|{uri: string},
+};
+
+export
+type PROPS = {
+  images: Array<IMAGE>,
+  onEnd?: Function,
+};
+
 export default class Slider extends Component {
+  props: PROPS;
   zooming: boolean = false;
   state: STATE = {
     ...calculateCardinals(this.props),
   };
+  componentWillReceiveProps(props: PROPS) {
+    this.setState({...calculateCardinals(props)});
+    if (props.initial !== this.state.cursor) {
+      const {width} = Dimensions.get('window');
+      this.setState({cursor: props.initial}, () => {
+        Animated
+          .spring(this.state.left, {
+            toValue: props.initial * -width,
+            friction: 10,
+            tension: 50,
+          })
+          .start();
+      });
+    }
+  }
   makeHandlers(): Object {
     return PanResponder.create({
       onStartShouldSetPanResponder: (event) => {
@@ -43,6 +72,7 @@ export default class Slider extends Component {
     let {cursor, rightBoundary} = this.state;
     cursor += change;
     if (cursor > (rightBoundary - 1)) {
+      this.props.onEnd();
       cursor = (rightBoundary - 1);
     } else if (cursor === -1) {
       cursor = 0;
@@ -52,9 +82,10 @@ export default class Slider extends Component {
         .spring(this.state.left, {
           toValue: cursor * -width,
           friction: 10,
-          tension: 50,
+          tension: 100,
         })
-        .start();
+        .start(() => {
+        });
     });
   }
   move(event, gestureState) {

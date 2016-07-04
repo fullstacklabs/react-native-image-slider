@@ -69,15 +69,18 @@ export default class ZoomImage extends Component {
           this.props.onZoomEnd();
           this.animate_zoom = false;
         }
-        Animated
-          .spring(this.state.zoom, {
-            toValue: zoom,
-          })
-          .start(() => {
-            if (this.animate_zoom) {
-              return this.zoomer();
-            }
-          });
+        if (zoom < 3) {
+          console.log('zooming', zoom);
+          Animated
+            .spring(this.state.zoom, {
+              toValue: zoom,
+            })
+            .start(() => {
+              if (this.animate_zoom) {
+                return this.zoomer();
+              }
+            });
+        }
       }
     } else {
       this.lastDistance = calculateDistance(this.nativeEvent);

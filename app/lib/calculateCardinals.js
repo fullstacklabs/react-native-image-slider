@@ -35,7 +35,7 @@ function calculateOffsets(cursor, size, outbound) {
 }
 
 export default function calculateCardinals(props: PROPS): CARDINALS {
-  const _cursor = _.findIndex(props.images, {id: props.initial});
+  const _cursor = props.initial || 0;
   const cursor = _.isNumber(_cursor) && _cursor >= 0 ? _cursor : 0;
   const size = props.size || 10;
   const {start, end} = calculateOffsets(cursor, size, props.images.length);

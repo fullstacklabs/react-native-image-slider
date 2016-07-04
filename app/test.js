@@ -18,16 +18,55 @@ const images = [
     source: require('../assets/demo-images/2.jpg'),
     width: 640,
     height: 480,
-  }
+  },
+  {
+    source: require('../assets/demo-images/3.jpg'),
+    width: 480,
+    height: 640,
+  },
+  {
+    source: require('../assets/demo-images/4.jpg'),
+    width: 400,
+    height: 300,
+  },
+  {
+    source: require('../assets/demo-images/5.jpg'),
+    width: 400,
+    height: 300,
+  },
 ];
 
 export default class App extends Component {
+  state = {
+    images: [
+      images[0],
+      images[1],
+    ],
+    initial: 0,
+  };
   render() {
     return this.renderSlider();
   }
   renderSlider() {
     return (
-      <Slider images={images} />
+      <Slider
+        images={this.state.images}
+        initial={this.state.initial}
+        onEnd={() => {
+          setTimeout(() => {
+            if (this.state.images.length < images.length) {
+              console.log('load more');
+              this.setState({
+                images: [
+                  ...this.state.images,
+                  images[this.state.images.length],
+                ],
+                initial: this.state.images.length,
+              });
+            }
+          }, 1500);
+        }}
+        />
     );
   }
   renderZoom() {
