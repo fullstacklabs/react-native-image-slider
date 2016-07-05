@@ -15,6 +15,7 @@ npm install --save fullstacklabs/react-native-image-slider
 import React, {Component} from 'react';
 import Slider from 'react-native-image-slider';
 
+// An array of images to load (mocking up back-end data)
 const images = [
   {source: {uri: 'http://....'}, width: 100, height: 100},
   {source: require('./1.png'), width: 100, height: 100},
@@ -26,8 +27,10 @@ const images = [
 
 class MySlider extends Component {
   state = {images: [images[0], images[1]]};
+  
   render() {
     const hasMoreImages = this.state.images < images.length;
+    
     return <Slider
       images={this.state.images}
       loadMoreAfter={hasMoreImages}
@@ -53,3 +56,9 @@ type IMAGE = {
   height: number,
 };
 ```
+
+# `initial: number`
+
+# `loadMoreAfter: boolean`
+
+# `onEnd: () => any`
