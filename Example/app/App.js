@@ -19,21 +19,21 @@ const images = [
     width: 768,
     height: 433,
   },
-  {
-    source: require('../assets/2.jpg'),
-    width: 600,
-    height: 418,
-  },
-  {
-    source: require('../assets/3.jpg'),
-    width: 600,
-    height: 318,
-  },
-  {
-    source: require('../assets/4.jpg'),
-    width: 500,
-    height: 583,
-  },
+  // {
+  //   source: require('../assets/2.jpg'),
+  //   width: 600,
+  //   height: 418,
+  // },
+  // {
+  //   source: require('../assets/3.jpg'),
+  //   width: 600,
+  //   height: 318,
+  // },
+  // {
+  //   source: require('../assets/4.jpg'),
+  //   width: 500,
+  //   height: 583,
+  // },
   // {
   //   source: require('../assets/5.jpg'),
   //   width: 618,
@@ -96,6 +96,8 @@ const images = [
   // },
 ];
 
+console.log('hello');
+
 export default class App extends Component {
   state = {
     images,
@@ -108,7 +110,7 @@ export default class App extends Component {
       <Slider
         images={this.state.images}
         initial={this.state.initial}
-        size={2}
+        size={10}
         loadMoreAfter={loadMoreAfter}
         onEnd={() => {
           // console.log('on End');

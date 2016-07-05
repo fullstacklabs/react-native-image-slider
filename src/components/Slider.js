@@ -7,6 +7,7 @@ import {
   View,
   ActivityIndicator,
 } from 'react-native';
+import _ from 'lodash';
 import Zoom from './Zoom';
 import calculateCardinals from '../lib/calculateCardinals';
 import type {CARDINALS} from '../lib/calculateCardinals';
@@ -32,15 +33,38 @@ type PROPS = {
   loadMoreAfter?: boolean,
 };
 
+export
+type NATIVE_EVENT = {};
+
+export
+type EVENT = {
+  nativeEvent: NATIVE_EVENT,
+};
+
+export
+type GESTURE_STATE = {
+  dx: number,
+  dy: number,
+  vx: number,
+  vy: number,
+};
+
 export default class Slider extends Component {
   props: PROPS;
   state: STATE = {changed: 0};
   zooming: boolean = false;
-  cardinals: CARDINALS = calculateCardinals(this.props);
+  cardinals: CARDINALS = calculateCardinals(
+    _.pick(this.props, ['cursor', 'size', 'images'])
+  );
+  left: Animated.Value;
+  componentWillMount() {
+    const {width} = Dimensions.get('window');
+    this.left = new Animated.Value(this.cardinals.cursor * width);
+  }
   componentDidMount() {
     console.log('did mount');
     console.log(
-      `${this.cardinals.cursor}/${this.cardinals.rightOffset}..${this.cardinals.rightBoundary}`
+      `${this.cardinals.cursor}/${this.cardinals.offsets.right}..${this.cardinals.boundaries.right}`
     );
   }
   componentWillReceiveProps(props: PROPS) {
@@ -67,7 +91,7 @@ export default class Slider extends Component {
   componentDidUpdate() {
     console.log('<Slider> updated');
     console.log(
-      `${this.cardinals.cursor}/${this.cardinals.rightOffset}..${this.cardinals.rightBoundary}`
+      `${this.cardinals.cursor}/${this.cardinals.offset.right}..${this.cardinals.boundaries.right}`
     );
   }
   makeHandlers(): Object {
@@ -87,12 +111,11 @@ export default class Slider extends Component {
       onPanResponderMove: this.move.bind(this),
     }).panHandlers;
   }
-  release(event, gestureState) {
+  release(event: EVENT, gestureState: GESTURE_STATE) {
     const {width} = Dimensions.get('window');
     const relativeDistance = gestureState.dx / width;
     const vx = gestureState.vx;
     let change = 0;
-    const newState = {};
 
     if (relativeDistance < -0.5 || relativeDistance < 0 && vx <= 0.5) {
       change = 1;
@@ -105,13 +128,13 @@ export default class Slider extends Component {
      *  |--------------------|------------|-----------|-----------------------|
     */
 
-    const {cursor, rightOffset, rightBoundary, size} = this.cardinals;
+    const {cursor, offsets, boundaries, size} = this.cardinals;
     let newCursor = cursor + change;
-    const rightOffsetSensor = rightOffset - 1;
+    const rightOffsetSensor = offsets.right - 1;
 
     if (change > 0) {
       if (cursor === rightOffsetSensor) {
-        if (rightOffset === rightBoundary) {
+        if (offsets.right === boundaries.right) {
           newCursor = cursor;
         }
       }
@@ -121,10 +144,10 @@ export default class Slider extends Component {
       }
     }
 
-    console.log({size, change, cursor, newCursor, rightOffset, rightOffsetSensor});
+    console.log({size, change, cursor, newCursor, offsets, rightOffsetSensor});
 
     Animated
-      .spring(this.cardinals.left, {
+      .spring(this.left, {
         toValue: newCursor * -width,
         friction: 10,
         tension: 100,
@@ -171,20 +194,21 @@ export default class Slider extends Component {
     //   cursor = 0;
     // }
   }
-  move(event, gestureState) {
+  move(event: EVENT, gestureState: GESTURE_STATE) {
     const {dx} = gestureState;
     const {width} = Dimensions.get('window');
     const left = -(this.cardinals.cursor * width) + Math.round(dx);
-    this.cardinals.left.setValue(left);
+    this.left.setValue(left);
   }
   render() {
+    console.log(this);
     const {width, height} = Dimensions.get('window');
     const {cardinals} = this;
-    let totalWidth = width * (cardinals.rightOffset - cardinals.leftOffset);
+    let totalWidth = width * (cardinals.offsets.right - cardinals.offsets.left);
     if (this.props.loadMoreAfter) {
       totalWidth += width;
     }
-    if (cardinals.rightOffset < cardinals.rightBoundary) {
+    if (cardinals.offsets.right < cardinals.boundaries.right) {
       totalWidth += width;
     }
     return (
@@ -197,7 +221,7 @@ export default class Slider extends Component {
           height,
           width: totalWidth,
           transform: [
-            {translateX: cardinals.left},
+            {translateX: this.left},
           ],
         }}
         {...this.makeHandlers()}
@@ -206,7 +230,7 @@ export default class Slider extends Component {
           this.props.images
             .map((image, key) => {
               if (
-                key >= cardinals.leftOffset && key < cardinals.rightOffset
+                key >= cardinals.offsets.left && key < cardinals.offsets.right
               ) {
                 return (
                   <Zoom
@@ -225,7 +249,7 @@ export default class Slider extends Component {
               return <View key={key} />;
             })
         }
-        {cardinals.rightOffset < cardinals.rightBoundary &&
+        {cardinals.offsets.right < cardinals.boundaries.right &&
           <View
             style={{
               width,
