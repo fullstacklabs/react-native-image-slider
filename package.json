@@ -3,8 +3,9 @@
   "version": "0.0.1",
   "main": "src/components/Slider",
   "scripts": {
-    "test": "npm run test-calculate-offsets",
-    "test-calculate-offsets": "babel-node --presets es2015,stage-0 --plugins transform-flow-strip-types -- test/calculateOffsets.js"
+    "test": "npm run test-offsets && npm run test-cardinals",
+    "test-offsets": "babel-node --presets es2015,stage-0 --plugins transform-flow-strip-types -- test/offsets.js",
+    "test-cardinals": "babel-node --presets es2015,stage-0 --plugins transform-flow-strip-types -- test/cardinals.js"
   },
   "dependencies": {
     "babel-plugin-transform-flow-strip-types": "^6.8.0",

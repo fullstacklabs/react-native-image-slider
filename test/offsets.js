@@ -1,6 +1,7 @@
 import calculateOffsets from '../src/lib/calculateOffsets';
 import _ from 'lodash';
 import 'colors';
+import assert from './assert';
 
 const ios = [
   {
@@ -48,15 +49,6 @@ const ios = [
     }
   },
 ];
-
-function assert(label, thing) {
-  console.log(
-    ' ', (thing ? '√'.green : 'X'.red), label[thing ? 'green' : 'red']
-  );
-  if (!thing) {
-    throw new Error(label);
-  }
-}
 
 ios.forEach(test => {
   try {
