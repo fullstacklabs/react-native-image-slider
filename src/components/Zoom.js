@@ -197,7 +197,6 @@ export default class ZoomImage extends Component {
     }
   }
   render() {
-    console.log(this);
     const AnimatedImage = Animated.createAnimatedComponent(Image);
     return (
       <AnimatedImage

@@ -31,6 +31,19 @@ function calculateOffsets(cursor, size, outbound) {
   if (end - start < size && start > 0) {
     start = end - size;
   }
+  console.log({
+    cursor,
+    size,
+    outbound,
+    is_odd,
+    half,
+    padding_left,
+    padding_right,
+    left,
+    right,
+    start,
+    end
+  });
   return {start, end};
 }
 

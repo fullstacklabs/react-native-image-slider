@@ -35,9 +35,16 @@ export default class Slider extends Component {
   state: STATE = {
     ...calculateCardinals(this.props),
   };
+  componentDidMount() {
+    console.log(
+      `${this.state.cursor}/${this.state.rightOffset}..${this.state.rightBoundary}`
+    );
+  }
   componentWillReceiveProps(props: PROPS) {
-    console.log('NEW PROPS!', props);
-    const cardinals = calculateCardinals(props);
+    const cardinals = calculateCardinals({
+      ...props,
+      // initial: this.state.cursor,
+    });
     const {
       size,
       leftBoundary,
@@ -53,15 +60,10 @@ export default class Slider extends Component {
       rightOffset,
     });
   }
-  shouldComponentUpdate(props: PROPS, state: STATE): boolean {
-    if (
-      state.cursor !== this.state.cursor &&
-      state.rightOffset === this.state.rightOffset
-    ) {
-      console.log('canceling Slider update because cursor change is minor');
-      return false;
-    }
-    return true;
+  componentDidUpdate() {
+    console.log(
+      `${this.state.cursor}/${this.state.rightOffset}..${this.state.rightBoundary}`
+    );
   }
   makeHandlers(): Object {
     return PanResponder.create({
@@ -92,7 +94,6 @@ export default class Slider extends Component {
     } else if (relativeDistance > 0.5 || relativeDistance > 0 && vx >= 0.5) {
       change = -1;
     }
-    console.log({cursor: this.state.cursor});
     let {cursor, rightBoundary, rightOffset} = this.state;
     cursor += change;
     if (cursor > (rightOffset - 1)) {
@@ -123,7 +124,6 @@ export default class Slider extends Component {
     if (cursor === -1) {
       cursor = 0;
     }
-    console.log({cursor, rightOffset, rightBoundary});
     Animated
       .spring(this.state.left, {
         toValue: cursor * -width,
@@ -131,7 +131,6 @@ export default class Slider extends Component {
         tension: 100,
       })
       .start(() => {
-        console.log({newState});
         if (newState.rightOffset) {
           this.setState({cursor, ...newState});
         } else {
@@ -146,7 +145,6 @@ export default class Slider extends Component {
     this.state.left.setValue(-(this.state.cursor * width) + Math.round(dx));
   }
   render() {
-    console.log(this);
     const {width, height} = Dimensions.get('window');
     let totalWidth = width * (this.state.rightOffset - this.state.leftOffset);
     if (this.props.loadMoreAfter) {

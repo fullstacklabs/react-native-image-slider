@@ -90,9 +90,9 @@ const images = [
     height: 380,
   },
   {
-    source: require('../assets/17.jpg'),
-    width: 612,
-    height: 380,
+    source: require('../assets/18.jpg'),
+    width: 638,
+    height: 370,
   },
 ];
 
@@ -113,7 +113,6 @@ export default class App extends Component {
   }
   renderSlider() {
     const loadMoreAfter = this.state.images.length < images.length;
-    console.log({loadMoreAfter});
     // const loadMoreAfter = false;
     return (
       <Slider
@@ -121,11 +120,11 @@ export default class App extends Component {
         initial={this.state.initial}
         loadMoreAfter={loadMoreAfter}
         onEnd={() => {
-          console.log('on End');
+          // console.log('on End');
           if (loadMoreAfter) {
             setTimeout(() => {
-              console.log('loading more');
-              const nextImages = this.state.images;
+              // console.log('loading more');
+              const nextImages = [];
               for (let i = 0; i < 7; i++) {
                 const index = this.state.images.length + i;
                 if (images[index]) {
