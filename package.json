@@ -2,6 +2,10 @@
   "name": "react-native-image-slider",
   "version": "0.0.1",
   "main": "src/components/Slider",
+  "scripts": {
+    "test": "npm run test-calculate-offsets",
+    "test-calculate-offsets": "babel-node --presets es2015,stage-0 --plugins transform-flow-strip-types -- test/calculateOffsets.js"
+  },
   "dependencies": {
     "babel-plugin-transform-flow-strip-types": "^6.8.0",
     "lodash": "^4.13.1"
