@@ -8,8 +8,6 @@ type OFFSETS = {
 
 export
 type PADDINGS = {
-  is_odd: boolean,
-  half: number,
   left: number,
   right: number,
 };
@@ -25,8 +23,6 @@ export default function calculateOffsets(
   const half: number = size / 2;
 
   const paddings: PADDINGS = {
-    is_odd,
-    half,
     left: is_odd ? Math.floor(half) : half,
     right: is_odd ? Math.ceil(half) : half,
   };
