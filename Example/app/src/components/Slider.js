@@ -12,7 +12,10 @@ import calculateCardinals from '../lib/calculateCardinals';
 import type {CARDINALS} from '../lib/calculateCardinals';
 
 export
-type STATE = CARDINALS;
+type STATE = {
+  changed: number,
+  reason: ?string,
+};
 
 export
 type IMAGE = {
@@ -31,16 +34,17 @@ type PROPS = {
 
 export default class Slider extends Component {
   props: PROPS;
+  state: STATE = {changed: 0};
   zooming: boolean = false;
-  state: STATE = {
-    ...calculateCardinals(this.props),
-  };
+  cardinals: CARDINALS = calculateCardinals(this.props);
   componentDidMount() {
+    console.log('did mount');
     console.log(
-      `${this.state.cursor}/${this.state.rightOffset}..${this.state.rightBoundary}`
+      `${this.cardinals.cursor}/${this.cardinals.rightOffset}..${this.cardinals.rightBoundary}`
     );
   }
   componentWillReceiveProps(props: PROPS) {
+    console.log('<Slider> will receive props');
     const cardinals = calculateCardinals({
       ...props,
       // initial: this.state.cursor,
@@ -61,8 +65,9 @@ export default class Slider extends Component {
     });
   }
   componentDidUpdate() {
+    console.log('<Slider> updated');
     console.log(
-      `${this.state.cursor}/${this.state.rightOffset}..${this.state.rightBoundary}`
+      `${this.cardinals.cursor}/${this.cardinals.rightOffset}..${this.cardinals.rightBoundary}`
     );
   }
   makeHandlers(): Object {
@@ -94,63 +99,92 @@ export default class Slider extends Component {
     } else if (relativeDistance > 0.5 || relativeDistance > 0 && vx >= 0.5) {
       change = -1;
     }
-    let {cursor, rightBoundary, rightOffset} = this.state;
-    cursor += change;
-    if (cursor > (rightOffset - 1)) {
-      if (rightOffset < rightBoundary) {
-        newState.rightOffset = rightOffset + this.state.size;
-        if (newState.rightOffset > rightBoundary) {
-          newState.rightOffset = rightBoundary;
+
+    /*
+     *  Left boundary    Left offset    Cursor   Right offset    Right boundary
+     *  |--------------------|------------|-----------|-----------------------|
+    */
+
+    const {cursor, rightOffset, rightBoundary} = this.cardinals;
+    let newCursor = cursor + change;
+    const rightOffsetSensor = rightOffset - 1;
+
+    if (change > 0) {
+      if (cursor === rightOffsetSensor) {
+        if (rightOffset === rightBoundary) {
+          newCursor = cursor;
         }
-      } else {
-        newState.rightOffset = rightOffset + this.state.size;
-        if (newState.rightOffset > rightBoundary) {
-          newState.rightOffset = rightBoundary;
-          if (!this.props.loadMoreAfter) {
-            cursor -= change;
-          }
-        }
+      }
+    } else if (change < 0) {
+      if (newCursor === -1) {
+        newCursor = cursor;
       }
     }
-    if (cursor > (rightBoundary - 1)) {
-      if (typeof this.props.onEnd === 'function') {
-        this.props.onEnd();
-      }
-      cursor = (rightBoundary - 1);
-      if (this.props.loadMoreAfter) {
-        cursor = rightBoundary;
-      }
-    }
-    if (cursor === -1) {
-      cursor = 0;
-    }
+
+    console.log({change, cursor, newCursor, rightOffset, rightOffsetSensor});
+
     Animated
-      .spring(this.state.left, {
-        toValue: cursor * -width,
+      .spring(this.cardinals.left, {
+        toValue: newCursor * -width,
         friction: 10,
         tension: 100,
       })
       .start(() => {
-        if (newState.rightOffset) {
-          this.setState({cursor, ...newState});
-        } else {
-          this.state.cursor = cursor;
-          Object.assign(this.state, newState);
-        }
+        // if (newState.rightOffset) {
+        //   this.setState({cursor, ...newState});
+        // } else {
+        //   this.state.cursor = cursor;
+        //   Object.assign(this.state, newState);
+        // }
+        this.cardinals.cursor = newCursor;
       });
+
+
+    // let {cursor, rightBoundary, rightOffset} = this.state;
+    // cursor += change;
+    // if (cursor > (rightOffset - 1)) {
+    //   if (rightOffset < rightBoundary) {
+    //     newState.rightOffset = rightOffset + this.state.size;
+    //     if (newState.rightOffset > rightBoundary) {
+    //       newState.rightOffset = rightBoundary;
+    //     }
+    //   } else {
+    //     newState.rightOffset = rightOffset + this.state.size;
+    //     if (newState.rightOffset > rightBoundary) {
+    //       newState.rightOffset = rightBoundary;
+    //       if (!this.props.loadMoreAfter) {
+    //         cursor -= change;
+    //       }
+    //     }
+    //   }
+    // }
+    // if (cursor > (rightBoundary - 1)) {
+    //   if (typeof this.props.onEnd === 'function') {
+    //     this.props.onEnd();
+    //   }
+    //   cursor = (rightBoundary - 1);
+    //   if (this.props.loadMoreAfter) {
+    //     cursor = rightBoundary;
+    //   }
+    // }
+    // if (cursor === -1) {
+    //   cursor = 0;
+    // }
   }
   move(event, gestureState) {
-    const dx = gestureState.dx;
+    const {dx} = gestureState;
     const {width} = Dimensions.get('window');
-    this.state.left.setValue(-(this.state.cursor * width) + Math.round(dx));
+    const left = -(this.cardinals.cursor * width) + Math.round(dx);
+    this.cardinals.left.setValue(left);
   }
   render() {
     const {width, height} = Dimensions.get('window');
-    let totalWidth = width * (this.state.rightOffset - this.state.leftOffset);
+    const {cardinals} = this;
+    let totalWidth = width * (cardinals.rightOffset - cardinals.leftOffset);
     if (this.props.loadMoreAfter) {
       totalWidth += width;
     }
-    if (this.state.rightOffset < this.state.rightBoundary) {
+    if (cardinals.rightOffset < cardinals.rightBoundary) {
       totalWidth += width;
     }
     return (
@@ -163,7 +197,7 @@ export default class Slider extends Component {
           height,
           width: totalWidth,
           transform: [
-            {translateX: this.state.left},
+            {translateX: cardinals.left},
           ],
         }}
         {...this.makeHandlers()}
@@ -172,7 +206,7 @@ export default class Slider extends Component {
           this.props.images
             .map((image, key) => {
               if (
-                key >= this.state.leftOffset && key < this.state.rightOffset
+                key >= cardinals.leftOffset && key < cardinals.rightOffset
               ) {
                 return (
                   <Zoom
@@ -191,7 +225,7 @@ export default class Slider extends Component {
               return <View key={key} />;
             })
         }
-        {this.state.rightOffset < this.state.rightBoundary &&
+        {cardinals.rightOffset < cardinals.rightBoundary &&
           <View
             style={{
               width,
