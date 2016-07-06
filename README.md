@@ -9,6 +9,15 @@ An image slider for React-Native with easy and eager loading and pinch zoom cont
 npm install --save fullstacklabs/react-native-image-slider
 ```
 
+# Run example
+
+```bash
+git clone https://github.com/fullstacklabs/react-native-image-slider
+cd react-native-image-slider
+npm i
+react-native run-ios
+```
+
 # Usage
 
 ```javascript
