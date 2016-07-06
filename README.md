@@ -13,7 +13,7 @@ npm install --save fullstacklabs/react-native-image-slider
 
 ```bash
 git clone https://github.com/fullstacklabs/react-native-image-slider
-cd react-native-image-slider
+cd react-native-image-slider/Example
 npm i
 react-native run-ios
 ```
