@@ -90,11 +90,19 @@ export default class ZoomImage extends Component {
     }
   }
   panner() {
-    const {width} = Dimensions.get('window');
-    const marginRight = Math.abs(width - (width + this.state.marginLeft._value));
+    const {width, height} = Dimensions.get('window');
+    const marginRight = Math.abs(
+      width - (width + this.state.marginLeft._value)
+    );
     const left = marginRight < 100 ? this.marginLeft + this.dx :
-      this.state._marginLeft;
-    console.log({marginRight, left});
+      this.marginLeft;
+    let top = this.marginTop;
+    const dimensions = calculateDimensions(this.props.width, this.props.height)
+    const imageHeight = dimensions.height * this.state.zoom._value;
+    console.log({imageHeight, height, zoom: this.state.zoom._value, props: dimensions.height});
+    if (imageHeight > height) {
+      top += this.dy;
+    }
     Animated
       .parallel([
         Animated.timing(this.state.marginLeft, {
@@ -103,7 +111,7 @@ export default class ZoomImage extends Component {
         }),
 
         Animated.timing(this.state.marginTop, {
-          toValue: this.marginTop + this.dy,
+          toValue: top,
           duration: 100,
         }),
       ])
