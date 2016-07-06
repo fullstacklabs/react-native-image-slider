@@ -57,42 +57,40 @@ export default class Slider extends Component {
     _.pick(this.props, ['cursor', 'size', 'images'])
   );
   left: Animated.Value;
+  log() {
+    return `${this.cardinals.cursor}/${this.cardinals.offsets.right}..` +
+    `${this.cardinals.boundaries.right} [${this.cardinals.size}]`;
+  }
   componentWillMount() {
     const {width} = Dimensions.get('window');
     this.left = new Animated.Value(this.cardinals.cursor * width);
   }
   componentDidMount() {
-    console.log('did mount');
-    console.log(
-      `${this.cardinals.cursor}/${this.cardinals.offsets.right}..${this.cardinals.boundaries.right}`
-    );
+    // console.log('%cmounted', 'font-weight: bold', this.log());
   }
   componentWillReceiveProps(props: PROPS) {
-    console.log('<Slider> will receive props');
-    const cardinals = calculateCardinals({
-      ...props,
-      // initial: this.state.cursor,
-    });
-    const {
-      size,
-      leftBoundary,
-      rightBoundary,
-      leftOffset,
-      rightOffset,
-    } = cardinals;
-    this.setState({
-      size,
-      leftBoundary,
-      rightBoundary,
-      leftOffset,
-      rightOffset,
-    });
+    // console.log('%creceiving', 'font-weight: bold', this.log());
+    // const cardinals = calculateCardinals({
+    //   ...props,
+    //   // initial: this.state.cursor,
+    // });
+    // const {
+    //   size,
+    //   leftBoundary,
+    //   rightBoundary,
+    //   leftOffset,
+    //   rightOffset,
+    // } = cardinals;
+    // this.setState({
+    //   size,
+    //   leftBoundary,
+    //   rightBoundary,
+    //   leftOffset,
+    //   rightOffset,
+    // });
   }
   componentDidUpdate() {
-    console.log('<Slider> updated');
-    console.log(
-      `${this.cardinals.cursor}/${this.cardinals.offset.right}..${this.cardinals.boundaries.right}`
-    );
+    // console.log('%cupdated', 'font-weight: bold', this.log());
   }
   makeHandlers(): Object {
     return PanResponder.create({
@@ -116,6 +114,7 @@ export default class Slider extends Component {
     const relativeDistance = gestureState.dx / width;
     const vx = gestureState.vx;
     let change = 0;
+    let changed = false;
 
     if (relativeDistance < -0.5 || relativeDistance < 0 && vx <= 0.5) {
       change = 1;
@@ -123,43 +122,72 @@ export default class Slider extends Component {
       change = -1;
     }
 
+    if (!change) {
+      return;
+    }
+
     /*
      *  Left boundary    Left offset    Cursor   Right offset    Right boundary
      *  |--------------------|------------|-----------|-----------------------|
     */
 
-    const {cursor, offsets, boundaries, size} = this.cardinals;
-    let newCursor = cursor + change;
+    const {cursor, offsets, boundaries} = this.cardinals;
     const rightOffsetSensor = offsets.right - 1;
+    const newCardinals = {
+      cursor: cursor + change,
+      offsets: {
+        left: this.cardinals.offsets.left,
+        right: this.cardinals.offsets.right,
+      },
+      boundaries: {
+        left: this.cardinals.boundaries.left,
+        right: this.cardinals.boundaries.right,
+      },
+    };
 
     if (change > 0) {
       if (cursor === rightOffsetSensor) {
         if (offsets.right === boundaries.right) {
-          newCursor = cursor;
+          newCardinals.cursor = cursor;
         }
+      } else if (newCardinals.offsets.right !== boundaries.right) {
+        newCardinals.offsets.right += this.cardinals.size;
+        if (newCardinals.offsets.right > boundaries.right) {
+          newCardinals.offsets.right = boundaries.right;
+        }
+        changed = true;
+        // console.log(`%cpushed offset right from ${offsets.right} to ${newCardinals.offsets.right}`,
+        //   'font-weight: bold');
       }
     } else if (change < 0) {
-      if (newCursor === -1) {
-        newCursor = cursor;
+      if (newCardinals.cursor === -1) {
+        newCardinals.cursor = cursor;
       }
     }
 
-    console.log({size, change, cursor, newCursor, offsets, rightOffsetSensor});
+    // console.log(
+    //   '%cmoving', 'font-weight: bold',
+    //   [this.cardinals,
+    //   newCardinals],
+    //   {changed}
+    // );
 
     Animated
       .spring(this.left, {
-        toValue: newCursor * -width,
+        toValue: newCardinals.cursor * -width,
         friction: 10,
         tension: 100,
       })
       .start(() => {
-        // if (newState.rightOffset) {
-        //   this.setState({cursor, ...newState});
-        // } else {
-        //   this.state.cursor = cursor;
-        //   Object.assign(this.state, newState);
-        // }
-        this.cardinals.cursor = newCursor;
+        this.cardinals = {
+          ...this.cardinals,
+          ...newCardinals,
+        };
+        // console.log('%cmoved', 'font-weight: bold', this.log(), this.cardinals);
+        if (changed) {
+          this.setState({changed: this.state.changed + 1});
+        }
+        // console.log('----------------------------------------');
       });
 
 
@@ -201,7 +229,7 @@ export default class Slider extends Component {
     this.left.setValue(left);
   }
   render() {
-    console.log(this);
+    // console.log(this);
     const {width, height} = Dimensions.get('window');
     const {cardinals} = this;
     let totalWidth = width * (cardinals.offsets.right - cardinals.offsets.left);
