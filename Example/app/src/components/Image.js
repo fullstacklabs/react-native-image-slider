@@ -1,6 +1,6 @@
 // @flow
 import React, {Component} from 'react';
-import {Image} from 'react-native';
+import {Image, Animated} from 'react-native';
 
 type PROPS = {
   onLoading?: Function,
@@ -16,7 +16,7 @@ export default class _Image extends Component {
   state: STATE = {done: false};
   render() {
     return (
-      <Image
+      <Animated.Image
         {...this.props}
         onLoadStart={() => {
           if (typeof this.props.onLoading === 'function') {

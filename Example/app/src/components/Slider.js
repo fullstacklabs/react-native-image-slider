@@ -229,7 +229,6 @@ export default class Slider extends Component {
     this.left.setValue(left);
   }
   render() {
-    // console.log(this);
     const {width, height} = Dimensions.get('window');
     const {cardinals} = this;
     let totalWidth = width * (cardinals.offsets.right - cardinals.offsets.left);
