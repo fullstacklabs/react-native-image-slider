@@ -205,9 +205,8 @@ export default class ZoomImage extends Component {
     }
   }
   render() {
-    const AnimatedImage = Animated.createAnimatedComponent(Image);
     return (
-      <AnimatedImage
+      <Image
         source={this.props.source}
         style={{
           ...this.props.style,
