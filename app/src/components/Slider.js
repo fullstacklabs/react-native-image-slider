@@ -116,14 +116,10 @@ export default class Slider extends Component {
     let change = 0;
     let changed = false;
 
-    if (relativeDistance < -0.5 || relativeDistance < 0 && vx <= 0.5) {
+    if (relativeDistance < -0.2 || relativeDistance < 0 && vx <= 0.2) {
       change = 1;
-    } else if (relativeDistance > 0.5 || relativeDistance > 0 && vx >= 0.5) {
+    } else if (relativeDistance > 0.2 || relativeDistance > 0 && vx >= 0.2) {
       change = -1;
-    }
-
-    if (!change) {
-      return;
     }
 
     /*
