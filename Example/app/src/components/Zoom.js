@@ -52,7 +52,6 @@ export default class ZoomImage extends Component {
   dx: number = 0;
   dy: number = 0;
   zoomer() {
-    console.log('zoomer');
     if (typeof this.lastDistance === 'number') {
       let zoom = calculateZoom(
         this.nativeEvent,
