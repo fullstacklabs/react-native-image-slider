@@ -34,6 +34,7 @@ const images = [
   {source: require('./5.png'), width: 100, height: 100},
 ];
 
+
 class MySlider extends Component {
   state = {images: [images[0], images[1]]};
 

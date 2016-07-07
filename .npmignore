@@ -1,1 +1,12 @@
-/Example/*
+node_modules/*
+.git/*
+android/*
+app/App.js
+assets/
+ios/
+.buckconfig
+.flowconfig
+.gitignore
+.watchmanconfig
+index.android.js
+index.ios.js

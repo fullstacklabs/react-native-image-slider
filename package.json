@@ -1,24 +1,13 @@
 {
-  "name": "react-native-image-slider",
+  "name": "ReactNativeImageSlider",
   "version": "0.0.1",
-  "main": "src/components/Slider",
+  "private": true,
+  "main": "app/src/components/Slider.js",
   "scripts": {
-    "test": "npm run test-offsets && npm run test-cardinals",
-    "test-offsets": "babel-node --presets es2015,stage-0 --plugins transform-flow-strip-types -- test/offsets.js",
-    "test-cardinals": "babel-node --presets es2015,stage-0 --plugins transform-flow-strip-types -- test/cardinals.js"
+    "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "babel-plugin-transform-flow-strip-types": "^6.8.0",
-    "lodash": "^4.13.1"
-  },
-  "devDependencies": {
-    "babel-eslint": "^6.1.0",
-    "babel-plugin-transform-flow-strip-types": "^6.8.0",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-stage-0": "^6.5.0",
-    "colors": "^1.1.2",
-    "eslint": "^2.13.1",
-    "eslint-plugin-react": "^5.2.2",
-    "eslint-plugin-react-native": "^1.1.0"
+    "react": "15.2.0",
+    "react-native": "0.29.0"
   }
 }
