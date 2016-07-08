@@ -129,7 +129,7 @@ export default class ZoomImage extends Component {
 
         // stop pan
 
-        // pan too much left - panning back right a little
+        // pan too much left - panning back right
         if (left > leftLimit) {
           const zoom = this.state.zoom._value;
           const {width, height} = Dimensions.get('window');
@@ -147,6 +147,7 @@ export default class ZoomImage extends Component {
               tension: 100,
             })
             .start();
+        // pan too much right - panning back left
         } else if (Math.abs(left) > leftLimit) {
           const zoom = this.state.zoom._value;
           const {width, height} = Dimensions.get('window');
@@ -156,7 +157,7 @@ export default class ZoomImage extends Component {
           const halfWidth = imageWidth / 2;
           const _halfWidth = width / 2;
           const leftX = (halfWidth - _halfWidth) / zoom;
-          this.marginLeft = (((halfWidth - _halfWidth) / zoom) - ((halfWidth / zoom)) / 2);
+          this.marginLeft = -(imageWidth / 2);
 
           console.log(this.marginLeft);
 
