@@ -147,6 +147,26 @@ export default class ZoomImage extends Component {
               tension: 100,
             })
             .start();
+        } else if (Math.abs(left) > leftLimit) {
+          const zoom = this.state.zoom._value;
+          const {width, height} = Dimensions.get('window');
+          const dimensions = calculateDimensions(this.props.width, this.props.height);
+          const imageWidth = dimensions.width * zoom;
+          const imageHeight = dimensions.height * zoom;
+          const halfWidth = imageWidth / 2;
+          const _halfWidth = width / 2;
+          const leftX = (halfWidth - _halfWidth) / zoom;
+          this.marginLeft = (((halfWidth - _halfWidth) / zoom) - ((halfWidth / zoom)) / 2);
+
+          console.log(this.marginLeft);
+
+          Animated
+            .spring(this.state.marginLeft, {
+              toValue: this.marginLeft,
+              friction: 10,
+              tension: 100,
+            })
+            .start();
         }
       });
   }
